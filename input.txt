@@ -10,7 +10,7 @@ var *a[2],*a;
 	c = &d;
 < bb 4>:
 	d=&y;
-	p=p-1;
+    a=p+q;
 	if()
 	goto <bb 4>:
 	goto <bb 5>:

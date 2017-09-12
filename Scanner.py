@@ -48,13 +48,13 @@ def t_NUM(t):
 	
 #Definition of new print function we use for our purpose
 def myprint(t):
-    print("Line: %d \t Token Name: %s \t Token: %s" % (t.lineno,t.type,t.value))
+    print("Line: %d \t Token Name: %s \t\t Token: %s" % (t.lineno,t.type,t.value))
 
 # Define a rule so we can track line numbers
 def t_newline(t):
     r'\n'
     t.lexer.lineno += len(t.value)
-    print("Line: %d \t Ignored NEWLINE character" % t.lineno)
+    #print("Line: %d \t Ignored NEWLINE character" % t.lineno)
     
 # A string containing ignored characters (spaces and tabs)
 t_ignore  = ' \t'
@@ -70,3 +70,9 @@ with open(arg1, 'r') as myfile:
     data=myfile.read()
 	
 lexer.input(data)
+
+'''while True:
+    tok = lexer.token()
+    if not tok:break
+    myprint(tok)
+'''

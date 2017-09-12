@@ -4,7 +4,20 @@ arg1 = sys.argv[1]        # For taking input from command line.
 
 # Get the token map from the lexer.  This is required.
 from Scanner import tokens
-
+class Node:
+    def __init__(self,type,children=None,parent=None):
+        self.type=type
+        if children:
+            self.children = children
+        else:
+            self.children = None
+        self.parent=parent          
+	
+class Expr:
+    def __init__(self, value, type):
+        self.type= type
+        self.value=value
+	
 precedence = (
     ('left', '+', '-'),
 )
@@ -19,21 +32,28 @@ def p_empty(p):
 
 #following is the grammar
 def p_program(p):
-	"program : procedure_definition"
-
+    "program : procedure_definition"
+    print ("Sucessfully parsed")
+	
 def p_proceduredefn(p):
-	'''procedure_definition : NAME '(' parameter_list ')' '{'  variable_declaration_list ex_statement_list return_stat '}' procedure_definition
-							 | empty '''
-
+    """procedure_definition : NAME '(' parameter_list ')' '{'  variable_declaration_list ex_statement_list return_stat '}' procedure_definition 
+							 | empty
+    """
+    #if len(p) == 2:
+        #print("Printinhg")
+			
 def p_parameterlist(p):
     ''' parameter_list : VAR pointer_variable parameter_list
 						 | pointer_variable parameter_list
 						 | ',' parameter_list
 						 | empty '''
-
+    #if len(p) == 4:
+        #print(p[1])
+    
 def p_variabledeclarationlist(p):
     ''' variable_declaration_list : empty
 								   | variable_declaration_list variable_declaration	'''
+    
 						 
 def p_variabledeclaration(p):
     ''' variable_declaration : VAR var_list ';'
@@ -60,19 +80,35 @@ def p_stmt(p):
 				   | procedure_call '''
 				  
 def p_asgnstmt(p):
-	''' assignment_statement : variable ASSIGN_OP arith_expression ';'
+    ''' assignment_statement : variable ASSIGN_OP arith_expression ';'
 							 | variable ASSIGN_OP POINTER_OP variable ';'
 							 | variable ASSIGN_OP ADDRESS_OP variable ';' '''
-
+				
+    if len(p)==5:
+        p[0]=Node("AssignmentOperation",[p[1],p[3]],p[2])
+        print(p[0].type)
+        print(p[0].parent)
+        print(p[0].children)
+		
+							
 def p_arithexpr(p):
-	''' arith_expression : arith_expression '+' arith_expression
+    ''' arith_expression : arith_expression '+' arith_expression
 						 | arith_expression '-' arith_expression
 						 | expression_term '''
+    if len(p)==2:
+        p[0]=p[1]
+    if len(p)==4:
+        p[0]=("ArithmaticExpression",[p[1],p[3]],p[2])
+        print("type",p[0])
+        #print("parent",p[0].parent)
+        #print("child",p[0].children)
+    		
 
 def p_exprterm(p):
-	'''expression_term : variable
+    '''expression_term : variable
 					   | procedure_call
 					   | constant '''
+    p[0]=p[1]
 						 
 def p_condgoto(p):
 	''' cond_goto : IF '(' ')' uncond_goto '''
@@ -81,15 +117,20 @@ def p_procedurecall(p):
     ''' procedure_call : NAME '(' parameter_list ')' ';' '''
 	
 def p_var(p):
-	''' variable : NAME
+    ''' variable : NAME
 				  | arr_var
-				  '''	
+    '''	
+	p[0]=p[1]
 
 def p_arrayvar(p):
     ''' arr_var : NAME '[' NUM ']' '''		  
+    p[0]=p[1]
 	
 def p_cons(p):
-	''' constant : NUM '''
+    ''' constant : NUM '''
+	p[0] = NumberAst(p[1],"int")
+	p[0].place = p[1]
+	p[0].code = ""
 				 
 def p_returnstat(p):
     ''' return_stat : RETURN pointer_variable ';'
@@ -101,6 +142,7 @@ def p_usestat(p):
 				
 def p_label(p):
     ''' label : '<' BB NUM '>' ':' '''
+    p[0]=p[2]
 	
 def p_ungoto(p):
     ''' uncond_goto : GOTO label '''
@@ -115,4 +157,7 @@ parser = yacc.yacc()
 with open(arg1, 'r') as myfile:
     data=myfile.read()
 
-parser.parse(data)
+result= parser.parse(data)
+
+
+		
