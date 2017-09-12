@@ -46,8 +46,8 @@ class ArithOpAst():
 		self.code=""
 		
 class AssigOpArth():
-	def __init__(self,left,right):
+	def __init__(self,left,right,code, place):
 		self.left=left
 		self.right=right
-		self.place=""
-		self.code=""
+		self.place=place
+		self.code=code

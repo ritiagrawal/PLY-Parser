@@ -1,17 +1,21 @@
 main()
 {
-var *a,b;
+var *a,*b,*e;
 var *c,*d;
+var *p,*q, *x,*y;
 < bb 3>:
-	e = &x;
+	x=a+b;
+	e = *x;
 < bb 4>:  
 < bb 3>:
-	s = &y;
+	d = &y;
 	goto <bb 5>:
 	c = &d;
-< bb 4>:
 	d=&y;
-    a=p+q;
+
+< bb 4>:
+	a = b;
+        a=p+q+c+d;
 	if()
 	goto <bb 4>: 
 	goto <bb 5>:
@@ -27,6 +31,6 @@ var *c,*d;
 
 f(var **a, var *b)
 {
-var *e;
+var *f;
     a=&b;
 }
