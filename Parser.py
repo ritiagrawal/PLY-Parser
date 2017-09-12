@@ -3,13 +3,10 @@ import sys
 arg1 = sys.argv[1]        # For taking input from command line.
 
 # Get the token map from the lexer.  This is required.
-from basicScannerCond import tokens
+from Scanner import tokens
 
 precedence = (
     ('left', '+', '-'),
-    ('left', '*', '/'),
-    ('right', 'UMINUS'),
-    ('left','(',')'),
 )
 
 #defines the starting grammar rule (top level rule)
@@ -22,44 +19,45 @@ def p_empty(p):
 
 #following is the grammar
 def p_program(p):
-	"program : declaration_list procedure_definition"
-
-def p_declarationlist(p):
-	'''declaration_list : procedure_declaration
-					    | variable_declaration_list procedure_declaration
-			 		    | procedure_declaration variable_declaration_list'''
-
-def p_proceduredecl(p):
-	'''procedure_declaration : VOID NAME '(' ')' ';' '''
-	print("procedure_declaration \n")
+	"program : procedure_definition"
 
 def p_proceduredefn(p):
-	'''procedure_definition : NAME '(' ')' '{' block goto_stat optional_variable_declaration_list ex_statement_list end_stat '}' '''
+	'''procedure_definition : NAME '(' parameter_list ')' '{'  variable_declaration_list ex_statement_list return_stat '}' procedure_definition
+							 | empty '''
 
-def p_optvardecllist(p):
-	'''optional_variable_declaration_list : empty
-										  | variable_declaration_list'''
+def p_parameterlist(p):
+    ''' parameter_list : VAR pointer_variable parameter_list
+						 | pointer_variable parameter_list
+						 | ',' parameter_list
+						 | empty '''
 
-def p_vardecllist(p):
-	'''variable_declaration_list : variable_declaration
-								 | variable_declaration_list variable_declaration'''
-
-def p_vardecl(p):
-	''' variable_declaration : FLOAT var_list ';'
-							 | INT var_list ';' '''
-
+def p_variabledeclarationlist(p):
+    ''' variable_declaration_list : empty
+								   | variable_declaration_list variable_declaration	'''
+						 
+def p_variabledeclaration(p):
+    ''' variable_declaration : VAR var_list ';'
+							 '''
 def p_varlist(p):
-	''' var_list : NAME
-				 | var_list ',' NAME '''
-
+	'''var_list : pointer_variable
+				| var_list ',' pointer_variable'''
+	
+def p_pointervariable(p):
+    ''' pointer_variable :  POINTER_OP pointer_variable
+						  | variable '''
+						 
+	
 def p_exstatlist(p):
 	''' ex_statement_list : empty
-						  | ex_statement_list block statement goto_stat'''
+						  | ex_statement_list statement '''
 
 def p_stmt(p):
 	''' statement : assignment_statement
-				   | if_else_statement
-	               | use_stat '''
+				   | cond_goto
+	               | use_stat
+				   | label
+				   | uncond_goto 
+				   | procedure_call '''
 				  
 def p_asgnstmt(p):
 	''' assignment_statement : variable ASSIGN_OP arith_expression ';'
@@ -69,46 +67,43 @@ def p_asgnstmt(p):
 def p_arithexpr(p):
 	''' arith_expression : arith_expression '+' arith_expression
 						 | arith_expression '-' arith_expression
-						 | arith_expression '*' arith_expression
-						 | arith_expression '/' arith_expression
-						 | '-' arith_expression %prec UMINUS
-						 | '(' arith_expression ')'
 						 | expression_term '''
-
-def p_ifelse(p):
-	''' if_else_statement : IF '(' COND ')' goto_stat statement '''
 
 def p_exprterm(p):
 	'''expression_term : variable
+					   | procedure_call
 					   | constant '''
-        
+						 
+def p_condgoto(p):
+	''' cond_goto : IF '(' ')' uncond_goto '''
 
+def p_procedurecall(p): 
+    ''' procedure_call : NAME '(' parameter_list ')' ';' '''
+	
 def p_var(p):
-	''' variable : NAME '''
+	''' variable : NAME
+				  | arr_var
+				  '''	
 
+def p_arrayvar(p):
+    ''' arr_var : NAME '[' NUM ']' '''		  
+	
 def p_cons(p):
-	''' constant : NUM
-				 | FNUM '''
-
-def p_endstatement(p):
-    ''' end_stat :  block return_stat
-                    | block use_stat	
-					| block empty '''
+	''' constant : NUM '''
 				 
 def p_returnstat(p):
-    ''' return_stat : RETURN POINTER_OP POINTER_OP variable ';'
-					| RETURN ADDRESS_OP variable ';' '''
+    ''' return_stat : RETURN pointer_variable ';'
+					| RETURN ADDRESS_OP variable ';'
+					| empty '''
 
 def p_usestat(p):
-    ''' use_stat : USE '(' variable ')' ';' 
-	              | USE '(' POINTER_OP variable ')' ';' '''
+    ''' use_stat : USE '(' pointer_variable ')' ';' '''
 				
-def p_block(p):
-    ''' block : '<' BB NUM '>' ':' 
-				| empty '''
-def p_goto(p):
-    ''' goto_stat : GOTO block 
-					| empty '''
+def p_label(p):
+    ''' label : '<' BB NUM '>' ':' '''
+	
+def p_ungoto(p):
+    ''' uncond_goto : GOTO label '''
 				
 #for error handling
 def p_error(p):

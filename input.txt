@@ -1,23 +1,31 @@
-void main ();
 main()
 {
-< bb 2>:
-	int a;
-<bb 3>:
+var *a[2],*a;
+< bb 3>:
 	e = &x;
-< bb 4>:
+< bb 4>:  
+< bb 3>:
 	s = &y;
 	goto <bb 5>:
 	c = &d;
 < bb 4>:
 	d=&y;
-	if(cond)
+	p=p-1;
+	if()
 	goto <bb 4>:
+	goto <bb 5>:
                  use(a);
 	use (*b);
 	goto <bb 5>:
 	a = *c;
 	// a-->y, a-->z
 	// d-->x,d-->x live: a,x
-	return &a;
+	f(**a, *b);
+	return a[2];
+}
+
+f(var **a, var *b)
+{
+var *a;
+    a=&b;
 }

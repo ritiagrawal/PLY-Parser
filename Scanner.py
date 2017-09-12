@@ -3,19 +3,15 @@ import sys
 arg1 = sys.argv[1]
 
 reserved = {
+    'var' : 'VAR',
     'if' : 'IF',
-    'float' : 'FLOAT',  
-    'int'  : 'INT',
-    'void' : 'VOID',
 	'return' : 'RETURN',
 	'use' : 'USE',
-	'cond' : 'COND',
 	'bb' : 'BB',
 	'goto' : 'GOTO'
 }
 
 tokens = [
-    'FNUM',
     'NUM',
     'NAME',
     'ASSIGN_OP',
@@ -33,7 +29,7 @@ def t_NAME(t):
     t.type = reserved.get(t.value,'NAME')    # Check for reserved words
     return t
 
-literals = ['(',')','{','}', ',' , ';', ':', '?', '+', '-', '*', '/' , '<' ,'>' ]
+literals = ['(',')','{','}', ',' , ';', ':', '?', '+', '-', '*', '/' , '<' ,'>' , '[' , ']' ]
 
 # Regular expression rules for simple tokens
 t_ASSIGN_OP = r'\='
