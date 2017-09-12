@@ -1,6 +1,7 @@
 main()
 {
-var *a[2],*a;
+var *a,b;
+var *c,*d;
 < bb 3>:
 	e = &x;
 < bb 4>:  
@@ -12,7 +13,7 @@ var *a[2],*a;
 	d=&y;
     a=p+q;
 	if()
-	goto <bb 4>:
+	goto <bb 4>: 
 	goto <bb 5>:
                  use(a);
 	use (*b);
@@ -26,6 +27,6 @@ var *a[2],*a;
 
 f(var **a, var *b)
 {
-var *a;
+var *e;
     a=&b;
 }
