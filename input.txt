@@ -2,7 +2,7 @@ main()
 {
 var *a,*b,*e;
 var *c,*d;
-var *p,*q, *x,*y;
+var *p,*q, *x,*y,x;
 < bb 3>:
 	x=a+b;
 	e = *x;
@@ -15,22 +15,22 @@ var *p,*q, *x,*y;
 
 < bb 4>:
 	a = b;
-        a=p+q+c+d;
+        a=p+q;
 	if()
-	goto <bb 4>: 
+	    goto <bb 4>: 
 	goto <bb 5>:
-                 use(a);
+        use(*a);
 	use (*b);
 	goto <bb 5>:
 	a = *c;
 	// a-->y, a-->z
 	// d-->x,d-->x live: a,x
-	f(**a, *b);
+	f(**a);
 	return a[2];
 }
 
 f(var **a, var *b)
 {
-var *f;
+	var *f;
     a=&b;
 }

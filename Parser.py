@@ -4,7 +4,7 @@ arg1 = sys.argv[1]        # For taking input from command line.
 
 # Get the token map from the lexer.  This is required.
 from Scanner import tokens
-from astgenrator import *
+from astgenerator import *
 
 class Expr:
     def __init__(self, value, type):
@@ -36,8 +36,8 @@ def p_proceduredefn(p):
         #print("Printinhg")
 			
 def p_parameterlist(p):
-    ''' parameter_list : VAR pointer_variable parameter_list
-						 | pointer_variable parameter_list
+    ''' parameter_list : VAR ppointer_var parameter_list
+						 | ppointer_var parameter_list
 						 | ',' parameter_list
 						 | empty '''
     #if len(p) == 4:
@@ -51,29 +51,60 @@ def p_variabledeclarationlist(p):
 def p_variabledeclaration(p):
     ''' variable_declaration : VAR var_list ';'
 							 '''
-def p_varlist(p):
-    '''var_list : pointer_variable
-				| var_list ',' pointer_variable'''
+def p_varlistpointer(p):
+    '''var_list : ppointer_var
+		| var_list ',' ppointer_var'''
 				
-    if len(p) == 2:
-        if p[1] not in varnames:
-            varnames.append(p[1]) 
-            print ("varnames",varnames)
-        else:
-            print ("Multiple declarations",p[1])
-    else:
-        if p[3] not in varnames:
-            varnames.append(p[3])
-        else:
-            print ("Multiple declarations",p[3])
+    #if len(p) == 2:
+    #    if p[1].place not in varnames:
+    #        varnames.append(p[1].place) 
+    #        print ("varnames",varnames)
+    #    else:
+    #        print ("Multiple declarations",p[1].code)
+    #else:
+        #if p[3].place not in varnames:
+        #    varnames.append(p[3].place)
+        #    print ("varnames",varnames)
+        #else:
+        #    print ("Multiple declarations",p[3])
+
+def p_varlist(p):
+
+    '''var_list : variable
+	     | var_list ',' variable '''
+    #if len(p) == 2:
+        #if p[1] not in varnames:
+        #    varnames.append(p[1]) 
+        #    print ("varnames",varnames)
+        #else:
+        #    print ("Multiple declarations",p[1])
+    #else:
+        #if p[3] not in varnames:
+        #    varnames.append(p[3])
+        #else:
+        #    print ("Multiple declarations",p[3])
 	
 def p_pointervariable(p):
-    ''' pointer_variable :  POINTER_OP pointer_variable
-						  | variable '''
-    if len(p)==2:
-        p[0]=p[1]					 
-    else:
-        p[0]=p[2]
+        ''' pointer_variable :  POINTER_OP variable'''
+        global interVar
+        p[0]=NameAst(p[2])
+        #if p[2] not in varnames:
+        #    varnames.append(p[2]) 
+        #    print ("varnames",varnames)
+        #else:
+        #    print ("Multiple declarations",p[2])
+        p[0].place="var"+ str(interVar)
+        interVar+=1
+        p[0].code="\t %s=%s %s" %(p[0].place,p[1], p[2]) 
+        print (p[0].code)
+	
+def p_ppointervariable(p):
+	'''ppointer_var : POINTER_OP ppointer_var
+			 | pointer_variable  '''
+	global interVar
+	if len(p)==2:
+		p[0]=p[1]
+		
 		
 def p_exstatlist(p):
 	''' ex_statement_list : empty
@@ -89,7 +120,6 @@ def p_stmt(p):
 				  
 def p_asgnstmt(p):
 	''' assignment_statement : expression_term ASSIGN_OP arith_expression ';'
-				 | expression_term ASSIGN_OP POINTER_OP expression_term ';'
 				 | expression_term ASSIGN_OP ADDRESS_OP expression_term ';' '''
 	global interVar
 	if len(p)==6:
@@ -102,7 +132,8 @@ def p_asgnstmt(p):
 		p[0]=AssigOpArth(p[1],p[3],"","")
 		p[0].place=p[1].place
 		p[0].code= p[3].code + "\t %s = %s" %(p[0].place , p[3].place)
-	print("\tAssigning",p[0].code)
+	#print(p[3].place)
+	print("\t Assigning",p[0].code)
 							
 def p_arithexpr(p):
 	''' arith_expression : arith_expression '+' arith_expression
@@ -111,7 +142,6 @@ def p_arithexpr(p):
 	global interVar
 	if len(p)==2:
 		p[0] = p[1]
-		
 	if len(p)==4:
 		p[0]=ArithOpAst(p[1],p[2],p[3])
 		p[0].place="var" + str(interVar)
@@ -122,16 +152,20 @@ def p_arithexpr(p):
 
 def p_exprtermvar(p):
 	'''expression_term : variable'''
-	if p[1] in varnames:	
-		print("in Expression Term")
-		p[0]=NameAst(p[1])
-		p[0].place = p[1]
-		p[0].code = ""
-	else:
-		print ("Undeclared Name '%s' " %(p[1]))
-		raise SyntaxError		
-	
-	
+	#if p[1] in varnames:	
+	p[0]=NameAst(p[1])
+	p[0].place = p[1]
+	p[0].code = ""
+	#else:
+	#	print ("Undeclared Name '%s' " %(p[1]))
+	#	raise SyntaxError		
+
+def p_exprtermpointervar(p):
+	'''expression_term : ppointer_var'''
+	global interVar
+	p[0]=p[1]	
+	print("InExp",p[0].code)
+
 def p_exprtermconstant(p):
 	'''expression_term : constant '''
 	p[0]=NumberAst(p[1])
@@ -142,7 +176,7 @@ def p_exprtermprocedure(p):
 	'''expression_term : procedure_call'''
 	
 def p_condgoto(p):
-	''' cond_goto : IF '(' ')' uncond_goto '''
+	''' cond_goto : IF '(' ')' GOTO label '''
 	p[0]=p[4]
 
 def p_procedurecall(p): 
@@ -163,20 +197,23 @@ def p_cons(p):
 	p[0] = NumberAst(p[1],"int")
 				 
 def p_returnstat(p):
-    ''' return_stat : RETURN pointer_variable ';'
-					| RETURN ADDRESS_OP variable ';'
-					| empty '''
+    ''' return_stat : RETURN ppointer_var ';'
+		| RETURN ADDRESS_OP variable ';'
+		| RETURN variable ';'
+		| empty '''
 
 def p_usestat(p):
-    ''' use_stat : USE '(' pointer_variable ')' ';' '''
+    ''' use_stat : USE '(' ppointer_var ')' ';' '''
+    
 				
 def p_label(p):
     ''' label : '<' BB NUM '>' ':' '''
-    p[0]=p[2]
+    p[0]=p[3]
+	
 	
 def p_ungoto(p):
     ''' uncond_goto : GOTO label '''
-    p[0]=p[1]
+    p[0]=p[2]
 				
 #for error handling
 def p_error(p):
@@ -189,6 +226,3 @@ with open(arg1, 'r') as myfile:
     data=myfile.read()
 
 result= parser.parse(data)
-
-
-		
