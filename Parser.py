@@ -101,10 +101,16 @@ def p_pointervariable(p):
 def p_ppointervariable(p):
 	'''ppointer_var : POINTER_OP ppointer_var
 			 | pointer_variable  '''
-	global interVar
 	if len(p)==2:
 		p[0]=p[1]
-		
+	
+def p_addrvariable(p):
+	'''addr_var : ADDRESS_OP variable'''
+	global interVar
+	p[0]=NameAst(p[2])
+	p[0].place="var"+ str(interVar)
+	interVar+=1
+	p[0].code="\t %s=%s %s" %(p[0].place,p[1], p[2]) 
 		
 def p_exstatlist(p):
 	''' ex_statement_list : empty
@@ -119,8 +125,7 @@ def p_stmt(p):
 	    	       | procedure_call '''
 				  
 def p_asgnstmt(p):
-	''' assignment_statement : expression_term ASSIGN_OP arith_expression ';'
-				 | expression_term ASSIGN_OP ADDRESS_OP expression_term ';' '''
+	''' assignment_statement : expression_term ASSIGN_OP arith_expression ';' '''
 	global interVar
 	if len(p)==6:
 		print()
@@ -166,6 +171,12 @@ def p_exprtermpointervar(p):
 	p[0]=p[1]	
 	print("InExp",p[0].code)
 
+def p_exprtermaddrvar(p):
+	'''expression_term : addr_var'''
+	global interVar
+	p[0]=p[1]
+	print ("In Addr Exp",p[0].code)
+	
 def p_exprtermconstant(p):
 	'''expression_term : constant '''
 	p[0]=NumberAst(p[1])

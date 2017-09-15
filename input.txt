@@ -12,7 +12,6 @@ var *p,*q, *x,*y,x;
 	goto <bb 5>:
 	c = &d;
 	d=&y;
-
 < bb 4>:
 	a = b;
         a=p+q;
