@@ -5,7 +5,7 @@ with open(arg1, 'r') as myfile:
 
 	
 varnames=[]	
-	
+#parameterlist[]
 #SymbolTable
 symtab = {
 	'int': [],
@@ -31,11 +31,11 @@ class NumberAst():
 		self.code = ""
 		
 class NameAst():
-    def __init__(self,left):
-        self.left=left
-        self.type="variable"
-        self.place=self.left
-        self.code=""
+    	def __init__(self,left):
+    	    	self.left=left
+    	    	self.type="variable"
+    	    	self.place=self.left
+    	    	self.code=""
 
 class ArithOpAst():
 	def __init__(self,left,op,right):
@@ -51,3 +51,22 @@ class AssigOpArth():
 		self.right=right
 		self.place=place
 		self.code=code
+
+class GotoAst():
+	def __init__(self, left, code , place):
+		self.left= left
+		self.code= code
+		self.place= place
+class UseStatementAst():
+	def __init__(self, left ,code, place):
+		self.left = left
+		self.code = code
+		self.place = place
+
+class ProcedureCallAst():
+	def __init__(self, left, right, code, place):
+		self.left = left
+		self.right = right
+		self.place = place
+		self.code = code
+

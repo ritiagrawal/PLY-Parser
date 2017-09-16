@@ -29,19 +29,22 @@ def p_program(p):
     print ("Sucessfully parsed")
 	
 def p_proceduredefn(p):
-    """procedure_definition : NAME '(' parameter_list ')' '{'  variable_declaration_list ex_statement_list return_stat '}' procedure_definition 
+    """procedure_definition : NAME '(' parameters ')' '{'  variable_declaration_list ex_statement_list return_stat '}' procedure_definition 
 							 | empty
     """
     #if len(p) == 2:
         #print("Printinhg")
 			
+def p_parameters(p):
+    ''' parameters : VAR ppointer_var parameter_list
+		    | ppointer_var parameter_list
+		    | empty  '''
+    if len(p) == 3:
+        p[0]=p[1]
+
 def p_parameterlist(p):
-    ''' parameter_list : VAR ppointer_var parameter_list
-						 | ppointer_var parameter_list
-						 | ',' parameter_list
-						 | empty '''
-    #if len(p) == 4:
-        #print(p[1])
+	'''parameter_list : ',' parameters
+			    | empty '''
     
 def p_variabledeclarationlist(p):
     ''' variable_declaration_list : empty
@@ -101,8 +104,15 @@ def p_pointervariable(p):
 def p_ppointervariable(p):
 	'''ppointer_var : POINTER_OP ppointer_var
 			 | pointer_variable  '''
+	global interVar
 	if len(p)==2:
 		p[0]=p[1]
+	else:
+		p[0]=NameAst(p[2].place)
+		p[0].place="var"+ str(interVar)
+		interVar+=1
+		p[0].code=p[2].code + "\t %s=%s %s" %(p[0].place,p[1],p[2].place)
+		print(p[0].code) 
 	
 def p_addrvariable(p):
 	'''addr_var : ADDRESS_OP variable'''
@@ -151,7 +161,7 @@ def p_arithexpr(p):
 		p[0]=ArithOpAst(p[1],p[2],p[3])
 		p[0].place="var" + str(interVar)
 		interVar += 1
-		p[0].code=p[1].code + p[3].code +"\t %s = %s  %s %s\n" %(p[0].place,p[1].place,p[2],p[3].place)
+		p[0].code=p[1].code + p[3].code +"\t\t\t %s = %s  %s %s\n" %(p[0].place,p[1].place,p[2],p[3].place)
 		print(p[0].code)
     		
 
@@ -187,11 +197,18 @@ def p_exprtermprocedure(p):
 	'''expression_term : procedure_call'''
 	
 def p_condgoto(p):
-	''' cond_goto : IF '(' ')' GOTO label '''
+	''' cond_goto : IF '(' ')' uncond_goto '''
 	p[0]=p[4]
+	p[0].code= "\n IF ( ) %s" %(p[4].code)
+	print(p[0].code)
+	
 
 def p_procedurecall(p): 
-    ''' procedure_call : NAME '(' parameter_list ')' ';' '''
+    ''' procedure_call : NAME '(' parameters ')' ';' '''
+    p[0] = ProcedureCallAst(p[1], p[3], "", "")
+    p[0].place = ""
+    p[0].code = p[3].code + "\n %s ( %s )" %(p[1], p[3].place)
+    print (p[0].code)
 	
 def p_var(p):
 	''' variable : NAME
@@ -215,16 +232,23 @@ def p_returnstat(p):
 
 def p_usestat(p):
     ''' use_stat : USE '(' ppointer_var ')' ';' '''
+    p[0] = UseStatementAst(p[3],"","")
+    p[0].place= p[3].place
+    p[0].code= p[3].code + "\nUSE ( %s )" %(p[0].place)
+    print(p[0].code)
     
 				
 def p_label(p):
     ''' label : '<' BB NUM '>' ':' '''
-    p[0]=p[3]
+    p[0]=p[3]   
 	
 	
 def p_ungoto(p):
     ''' uncond_goto : GOTO label '''
-    p[0]=p[2]
+    p[0]=GotoAst(p[2],"","")
+    p[0].place = ""
+    p[0].code = "\t%s %s"%(p[1], p[2])
+    print (p[0].code)
 				
 #for error handling
 def p_error(p):

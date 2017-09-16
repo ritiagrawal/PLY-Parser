@@ -4,7 +4,7 @@ var *a,*b,*e;
 var *c,*d;
 var *p,*q, *x,*y,x;
 < bb 3>:
-	x=a+b;
+	x=a+b+c+d;
 	e = *x;
 < bb 4>:  
 < bb 3>:
@@ -17,7 +17,7 @@ var *p,*q, *x,*y,x;
         a=p+q;
 	if()
 	    goto <bb 4>: 
-	goto <bb 5>:
+	goto <bb 2>:
         use(*a);
 	use (*b);
 	goto <bb 5>:
