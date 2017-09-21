@@ -5,14 +5,18 @@ with open(arg1, 'r') as myfile:
 
 	
 varnames=[]	
+level=0
 #parameterlist[]
 #SymbolTable
-symtab = {
-	'int': [],
-	'float': [],
-	'void' : []
 
-}
+EntryCount=0
+varCount=0;
+symbolTable = []
+class SymbolEntry():
+	def __init__(self, var, level):
+		self.var=var
+		self.level=level
+		
 #from parserast import *
 #For generating new variables in intermediate code
 interVar = 0	
@@ -31,8 +35,8 @@ class NumberAst():
 		self.code = ""
 		
 class NameAst():
-    	def __init__(self,left):
-    	    	self.left=left
+    	def __init__(self,name):
+    	    	self.left=name
     	    	self.type="variable"
     	    	self.place=self.left
     	    	self.code=""
@@ -57,6 +61,7 @@ class GotoAst():
 		self.left= left
 		self.code= code
 		self.place= place
+		
 class UseStatementAst():
 	def __init__(self, left ,code, place):
 		self.left = left

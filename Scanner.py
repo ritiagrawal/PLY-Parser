@@ -36,10 +36,6 @@ t_ASSIGN_OP = r'\='
 t_POINTER_OP = r'\*'
 t_ADDRESS_OP = r'\&'
 
-def t_FNUM(t):
-    r'\d+\.\d+'
-    t.value = float(t.value)
-    return t
 
 def t_NUM(t):
     r'\d+'
