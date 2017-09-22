@@ -36,14 +36,15 @@ def p_proceduredefn(p):
 	if len(p)==11:
 		p[0]=p[7]
 	level=0
+	
 def p_parameters(p):
 	''' parameters : VAR ppointer_var parameter_list
 		    | ppointer_var parameter_list
 		    | empty  '''
 	global level
-	level=0
 	if len(p) == 3:
 		p[0]=p[1]
+	level=0
 
 def p_parameterlist(p):
 	'''parameter_list : ',' parameters
@@ -62,37 +63,56 @@ def p_varlistpointer(p):
 	'''var_list : ppointer_var
 		| var_list ',' ppointer_var'''
 	global level
-	#if len(p) == 2:
-	varEntry= SymbolEntry(varnames[varCount-1], level)
-	print("level=====",level)	
-	symbolTable.append(varEntry)
-	for i in range (len(symbolTable)):
-		print(symbolTable[i].var, "\t", symbolTable[i].level,"\n")
-	level=0
+	global varCount
+	global multipleVar
+	flag=0
+	length=len(symbolTable)-1
+	
+	if varnames[varCount-1] in symbolTable[length].var :
+		print ("Multiple declarations of =====",multipleVar)
+		flag=1
 		
+	if (flag != 1):
+		varEntry= SymbolEntry(varnames[varCount-1], level)
+		print("level=====",level)	
+		symbolTable.append(varEntry)
+		for i in range (len(symbolTable)):
+			print(symbolTable[i].var, "\t", symbolTable[i].level,"\n")
+	level=0
 def p_varlist(p):
-    '''var_list : variable
+	'''var_list : variable
 	     | var_list ',' variable '''
-    #if len(p) == 2:
-        #if p[1] not in varnames:
-        #    varnames.append(p[1]) 
-        #    print ("varnames",varnames)
-        #else:
-        #    print ("Multiple declarations",p[1])
-    #else:
-        #if p[3] not in varnames:
-        #    varnames.append(p[3])
-        #else:
-        #    print ("Multiple declarations",p[3])
+	global level
+	global varCount
+	flag=0
+	if len(p)==2:
+		for i in range (len(symbolTable)):
+			if p[1] in symbolTable[i].var :
+				print ("Multiple declarations of ",p[1])
+				flag=1
+				break
+	else:
+		for i in range (len(symbolTable)):
+			if p[3] in symbolTable[i].var :
+				print ("Multiple declarations of ",p[3])
+				flag=1
+				break
+	if (flag != 1):
+		varEntry= SymbolEntry(varnames[varCount-1], level)
+		print("level=====",level)	
+		symbolTable.append(varEntry)
+		for i in range (len(symbolTable)):
+			print(symbolTable[i].var, "\t", symbolTable[i].level,"\n")
+	level=0
 	
 def p_pointervariable(p):
 	''' pointer_variable :  POINTER_OP variable'''
 	global interVar
-	global level
 	p[0]=NameAst(p[2])
 	p[0].place="var"+ str(interVar)
 	interVar+=1
 	p[0].code="\t %s=%s %s" %(p[0].place,p[1], p[2]) 
+	
 	
 def p_ppointervariable(p):
 	'''ppointer_var : POINTER_OP ppointer_var
@@ -209,8 +229,10 @@ def p_var(p):
 				| arr_var
 	'''	
 	global varCount
+	global multipleVar
 	p[0]=p[1]
 	if p[1] in varnames:
+		multipleVar=p[1]
 		pass
 	else:
 		varnames.append(p[1]) 
@@ -243,7 +265,7 @@ def p_usestat(p):
 				
 def p_label(p):
     ''' label : '<' BB NUM '>' ':' '''
-    p[0]=p[3]   
+    p[0]=p[3]  
 	
 	
 def p_ungoto(p):

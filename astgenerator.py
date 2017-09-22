@@ -5,6 +5,7 @@ with open(arg1, 'r') as myfile:
 
 	
 varnames=[]	
+multipleVar=""
 level=0
 #parameterlist[]
 #SymbolTable
