@@ -1,8 +1,8 @@
-var **w,*y;
+var ***w,**x;
+var **q;
 var *a,*b,*c,*d,*e,s;
 main()
 {
-var a,b,*e;
 var *c,*d;
 var *p,*q, *x,*y,z;
 
