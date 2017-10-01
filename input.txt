@@ -1,8 +1,10 @@
+var *w,*y;
+var **t,*f,*y;
 main()
 {
 var a,b,*e;
 var *c,*d;
-var *p,*q, *x,*y,*c;
+var *p,*q, *x,*y,*c,z;
 
 < bb 3>:
 	x=a+b+c+d;
@@ -32,6 +34,6 @@ var *p,*q, *x,*y,*c;
 f(var **a, var *b)
 {
 	var **u;
-	var *z;
+	var z;
     a=&b;
 }

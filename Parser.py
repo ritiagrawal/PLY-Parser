@@ -9,11 +9,7 @@ from astgenerator import *
 class Expr:
     def __init__(self, value, type):
         self.type= type
-        self.value=value
-	
-precedence = (
-    ('left', '+', '-'),
-)
+        self.value=value	
 
 #defines the starting grammar rule (top level rule)
 start = 'program'
@@ -25,39 +21,71 @@ def p_empty(p):
 
 #following is the grammar
 def p_program(p):
-    "program : procedure_definition"
+    "program : variable_declarations procedure_definition_list"
+    p[0]=program_grammar(p[1],p[2])
     print ("Sucessfully parsed")
 	
+def p_proceduredefn_list(p):
+	''' procedure_definition_list : procedure_definition_list procedure_definition 
+								| empty'''
+	if len(p)==3:
+		p[0]= procedure_defination_list_grammar(p[1],p[2])
+		print(p[0].procedure_defination_obj.name)
+	
 def p_proceduredefn(p):
-	"""procedure_definition : NAME '(' parameters ')' '{'  variable_declaration_list ex_statement_list return_stat '}' procedure_definition 
-							 | empty
+	"""procedure_definition : NAME '(' def_parameters ')' '{'  variable_declarations ex_statement_list return_stat '}' 
 	"""
 	global level
-	if len(p)==11:
-		p[0]=p[7]
+	if len(p)==10:
+		p[0]=procedure_defination_grammar(p[1],p[3],p[6],p[7],p[8])
 	level=0
 	
-def p_parameters(p):
-	''' parameters : VAR ppointer_var parameter_list
-		    | ppointer_var parameter_list
-		    | empty  '''
+def p_parametersfordef(p):
+	''' def_parameters : VAR ppointer_var def_parameter_list
+					| empty  '''
+	global level
+	if len(p)==4:
+		p[0]=parameters_for_def(p[2],p[3])
+	level=0
+	
+def p_defparameterlist(p):
+	'''def_parameter_list : ',' def_parameters
+						| empty '''
+	if len(p) == 3:
+		p[0] = def_parameter_list_grammar(p[2])
+
+def p_parameterforcall(p):
+	'''	call_parameters : ppointer_var call_parameter_list
+						| empty  '''
 	global level
 	if len(p) == 3:
-		p[0]=p[1]
+		p[0]=parameters_for_call(p[1], p[2])
 	level=0
+	
+def p_callparameterlist(p):
+	'''call_parameter_list : ',' call_parameters
+						| empty '''
+	if len(p)==3:
+		p[0]=call_parameter_list_grammar(p[2])
+    
+def p_variable_declarations(p):
+	'''variable_declarations : empty
+				| variable_declaration_list'''
+	global scope
+	scope=scope+1
+	if len(p)==2:
+		p[0]=variable_declarations_grammar(p[1])
 
-def p_parameterlist(p):
-	'''parameter_list : ',' parameters
-			    | empty '''
-    
 def p_variabledeclarationlist(p):
-    ''' variable_declaration_list : empty
+	''' variable_declaration_list : empty
 				  | variable_declaration_list variable_declaration	'''
-    
+	if len(p)==3:
+		p[0]=variable_dec_stat(p[1],p[2])
 						 
 def p_variabledeclaration(p):
 	''' variable_declaration : VAR var_list ';'
 							 '''
+	p[0]=var_variable_list(p[2])
 	
 def p_varlistpointer(p):
 	'''var_list : ppointer_var
@@ -65,62 +93,74 @@ def p_varlistpointer(p):
 	global level
 	global varCount
 	global multipleVar
+	global scope
 	flag=0
 	length=len(symbolTable)-1
 	if len(symbolTable)==0:
-		varEntry = SymbolEntry(varnames[varCount-1], level)
-		print("level=====",level)	
+		varEntry = SymbolEntry(varnames[varCount-1], level,scope)
+		print("level=====",level)
+		print("Scope====",scope)	
 		symbolTable.append(varEntry)
 		for i in range (len(symbolTable)):
-			print(symbolTable[i].var, "\t", symbolTable[i].level,"\n")
+			print(symbolTable[i].var, "\t", symbolTable[i].level,"\t",symbolTable[i].scope,"\n")
 	else:
 		if varnames[varCount-1] in symbolTable[length].var :
 			print ("Multiple declarations of =====",multipleVar)
 			flag=1
-			
+
 		if (flag != 1):
-			varEntry= SymbolEntry(varnames[varCount-1], level)
-			print("level=====",level)	
+			varEntry= SymbolEntry(varnames[varCount-1], level,scope)
+			print("level=====",level)
+			print("Scope====",scope)	
 			symbolTable.append(varEntry)
 			for i in range (len(symbolTable)):
-				print(symbolTable[i].var, "\t", symbolTable[i].level,"\n")
+				print(symbolTable[i].var, "\t", symbolTable[i].level,"\t",symbolTable[i].scope,"\n")
+			flag=0
 	level=0
-	
+	if len(p)==2:
+		p[0]=var_list_ppointer(p[1])
+	else:
+		p[0]=var_list_ppointerlist(p[1],p[3])
+		
 def p_varlist(p):
 	'''var_list : variable
 	     | var_list ',' variable '''
 	global level
 	global varCount
 	global multipleVar
+	global scope
 	flag=0
 	length=len(symbolTable)-1
 	if len(symbolTable)==0:
-		varEntry = SymbolEntry(varnames[varCount-1], level)
-		print("level=====",level)	
+		varEntry = SymbolEntry(varnames[varCount-1], level,scope)
+		print("level=====",level)
+		print("Scope====",scope)	
 		symbolTable.append(varEntry)
 		for i in range (len(symbolTable)):
-			print(symbolTable[i].var, "\t", symbolTable[i].level,"\n")
+			print(symbolTable[i].var, "\t", symbolTable[i].level,"\t",symbolTable[i].scope,"\n")
 	else: 
 		if varnames[varCount-1] in symbolTable[length].var :
-			print ("Multiple declarations of ",multipleVar)
+			print ("Multiple declarations of =====",multipleVar)
 			flag=1
+
 		if (flag != 1):
-			varEntry = SymbolEntry(varnames[varCount-1], level)
+			varEntry = SymbolEntry(varnames[varCount-1], level,scope)
 			print("level=====",level)	
+			print("Scope====",scope)
 			symbolTable.append(varEntry)
 			for i in range (len(symbolTable)):
-				print(symbolTable[i].var, "\t", symbolTable[i].level,"\n")
+				print(symbolTable[i].var, "\t", symbolTable[i].level,"\t",symbolTable[i].scope,"\n")
+			flag=0
 	level=0
+	if len(p)==2:
+		p[0]=var_list_variable(p[1])
+	else:
+		p[0]=var_list_variablelist(p[1],p[3])
 	
 def p_pointervariable(p):
-	''' pointer_variable :  POINTER_OP variable'''
-	global interVar
-	p[0]=NameAst(p[2])
-	p[0].place="var"+ str(interVar)
-	interVar+=1
-	p[0].code="\t %s=%s %s" %(p[0].place,p[1], p[2]) 
-	
-	
+	''' pointer_variable :  POINTER_OP variable''' 
+	p[0]=pointer_op_var(p[1],p[2])
+
 def p_ppointervariable(p):
 	'''ppointer_var : POINTER_OP ppointer_var
 			 | pointer_variable  '''
@@ -130,111 +170,120 @@ def p_ppointervariable(p):
 	if len(p)==2:
 		p[0]=p[1]
 		level+=1
+		p[0]=ppointer_var(p[1])
 	else:
 		level +=1
-		p[0]=NameAst(p[2].place)
-		p[0].place="var"+ str(interVar)
-		interVar+=1
-		p[0].code=p[2].code + "\n\t %s=%s %s" %(p[0].place,p[1],p[2].place)
-		print(p[0].code) 
+		p[0]=ppointer_var_list(p[1],p[2])
 	
 def p_addrvariable(p):
 	'''addr_var : ADDRESS_OP variable'''
-	global interVar
-	p[0]=NameAst(p[2])
-	p[0].place="var"+ str(interVar)
-	interVar+=1
-	p[0].code="\t %s=%s %s" %(p[0].place,p[1], p[2]) 
+	p[0]=addr_variableclass(p[1],p[2])
 		
 def p_exstatlist(p):
 	''' ex_statement_list : empty
 				| ex_statement_list statement '''
-
+	if len(p)==3:
+		statement_list(p[1],p[2])
+	
+	
 def p_stmt(p):
-	''' statement : assignment_statement
-		       | cond_goto
-	               | use_stat
-		       | uncond_goto 
-	    	       | procedure_call '''
-	p[0]=p[1]
-	print("\n\tStatement::",p[0].code)
+	''' statement : assignment_statement'''
+	p[0]=assignment_statement_list(p[1])
+	
+def p_stmt_cond_goto(p):
+	'''statement :  cond_goto'''
+	p[0]=cond_goto_stat(p[1])
 
+def p_stmt_uncond_goto(p):
+	'''statement : uncond_goto'''
+	p[0]=uncond_goto_stat(p[1])
+	
+def p_stmt_use_stat	(p):
+	'''statement : use_stat'''
+	p[0]=use_stat(p[1])
+	
+def p_stmt_procedure_call(p):
+	'''statement : procedure_call'''
+	p[0]=procedure_call_stat(p[1])
+	    	       
 def p_stmtlabel(p):
 	''' statement : label'''
-
+	p[0]=label_stat(p[1])
 				  
 def p_asgnstmt(p):
 	''' assignment_statement : expression_term ASSIGN_OP arith_expression ';' '''
 	global interVar
-	p[0]=AssigOpArth(p[1],p[3],"","")
-	p[0].place=p[1].place
-	p[0].code= p[3].code + "\n\t %s = %s" %(p[0].place , p[3].place)
-	#print(p[3].place)
-	print("\t Assigning",p[0].code)
+	p[0]=assign(p[1],p[3])
 							
 def p_arithexpr(p):
-	''' arith_expression : arith_expression '+' arith_expression
-						 | arith_expression '-' arith_expression
+	''' arith_expression : arith_expression ADD_OP arith_expression
+						| arith_expression MINUS_OP arith_expression
 						 | expression_term '''
 	global interVar
 	if len(p)==2:
-		p[0] = p[1]
+		p[0]=arithmetic_term_exp(p[1])
+	
 	if len(p)==4:
-		p[0]=ArithOpAst(p[1],p[2],p[3])
-		p[0].place="var" + str(interVar)
-		interVar += 1
-		p[0].code=p[1].code + p[3].code +"\t %s = %s  %s %s\n" %(p[0].place,p[1].place,p[2],p[3].place)
-		print(p[0].code)
+		p[0]=arithmetic_term_binop(p[1],p[2],p[3])
     		
-
 def p_exprtermvar(p):
 	'''expression_term : variable'''
-	#if p[1] in varnames:	
-	p[0]=NameAst(p[1])
-	p[0].place = p[1]
-	p[0].code = ""
-	#else:
-	#	print ("Undeclared Name '%s' " %(p[1]))
-	#	raise SyntaxError		
+	p[1]=exp_var(p[1])
 
 def p_exprtermpointervar(p):
 	'''expression_term : ppointer_var'''
 	global level
-	p[0]=p[1]	
+	p[0]=exp_ppointer_var(p[1])
 	level=0
 
 def p_exprtermaddrvar(p):
 	'''expression_term : addr_var'''
-	global interVar
-	p[0]=p[1]
+	p[0]=exp_addr_var(p[1])
 
 def p_exprtermconstant(p):
 	'''expression_term : constant '''
-	p[0]=NumberAst(p[1])
-	p[0].place = p[1].place
-	p[0].code = ""
+	p[0]=exp_constant(p[1])
 
 def p_exprtermprocedure(p):
 	'''expression_term : procedure_call'''
-	
+	p[0]=exp_procedure_call(p[1])
+
 def p_condgoto(p):
-	''' cond_goto : IF '(' ')' uncond_goto '''
-	p[0]=p[4]
-	p[0].code= "\n\tIF ( ) %s" %(p[4].code)
-	print(p[0].code)
+	''' cond_goto : IF '(' ')' if_cond_goto '''
+	p[0]=if_goto_grammer(p[4])
 	
+def p_ungoto(p):
+	''' uncond_goto : GOTO label '''
+	p[0]=uncond_goto_label(p[2])
+	
+def p_ifgoto(p):
+	'''if_cond_goto : GOTO label '''
+	p[0]=goto_label(p[2])
 
 def p_procedurecall(p): 
-    ''' procedure_call : NAME '(' parameters ')' ';' '''
-    p[0] = ProcedureCallAst(p[1], p[3], "", "")
-    p[0].place = ""
-    p[0].code = p[3].code + "\n\t%s ( %s )" %(p[1], p[3].place)
-    print (p[0].code)
+    ''' procedure_call : NAME '(' call_parameters ')' ';' '''
+    p[0] = calling_procedure(p[1],p[3])
 	
 def p_var(p):
-	''' variable : NAME
-				| arr_var
-	'''	
+	''' variable : NAME'''			
+	global varCount
+	global multipleVar
+	varflag=0	
+	flag=0
+	for entry in range(0,len(symbolTable)-1):
+		if p[1]==varnames[entry] and scope == symbolTable[entry].scope:
+				multipleVar=p[1]
+				flag=1
+				break
+	if (flag == 0):
+		varnames.append(p[1]) 
+		varCount+=1
+		flag=0
+
+	p[0]=var_name(p[1])
+
+def p_arr_var(p):
+	''' variable : arr_var'''	
 	global varCount
 	global multipleVar
 	p[0]=p[1]
@@ -251,36 +300,42 @@ def p_arrayvar(p):
 	
 def p_cons(p):
 	''' constant : NUM '''
-	p[0] = NumberAst(p[1],"int")
+	p[0]=constant_num(p[1])
+	
 				 
-def p_returnstat(p):
-	''' return_stat : RETURN ppointer_var ';'
-		| RETURN addr_var ';'
-		| RETURN variable ';'
-		| empty '''
+def p_returnppointer(p):
+	''' return_stat : RETURN ppointer_var ';' '''
 	global level
 	level=0
+	return_ppointer_var(p[2])
+	
+def p_return_addrvar(p):
+	''' return_stat : RETURN addr_var ';' '''
+	global level
+	level=0
+	p[0]=return_variable(p[1])
+
+def p_return_var(p):
+	''' return_stat : RETURN variable ';' '''
+	global level
+	level=0
+	p[0]=return_variable(p[2])
+
+def p_returnempty(p):
+	''' return_stat : empty '''
 
 def p_usestat(p):
 	''' use_stat : USE '(' ppointer_var ')' ';' '''
 	global level
-	p[0] = UseStatementAst(p[3],"","")
-	p[0].place= p[3].place
-	p[0].code= p[3].code + "\n\tUSE ( %s )" %(p[0].place)
-	print(p[0].code)
 	level=0
+	p[0]=use_pointer(p[3])
+	
 				
 def p_label(p):
     ''' label : '<' BB NUM '>' ':' '''
-    p[0]=p[3]  
+    p[0]=label_num(p[3])
 	
 	
-def p_ungoto(p):
-    ''' uncond_goto : GOTO label '''
-    p[0]=GotoAst(p[2],"","")
-    p[0].place = ""
-    p[0].code = "\t%s %s"%(p[1], p[2])
-    print (p[0].code)
 				
 #for error handling
 def p_error(p):
