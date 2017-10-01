@@ -15,10 +15,8 @@ tokens = [
     'NUM',
     'NAME',
     'ASSIGN_OP',
-	'ADDRESS_OP',
-	'POINTER_OP',
-	'MINUS_OP',
-	'ADD_OP',
+    'ADDRESS_OP',
+    'POINTER_OP',
 ] + list(reserved.values())
 
 def t_COMMENT(t):
@@ -31,14 +29,12 @@ def t_NAME(t):
     t.type = reserved.get(t.value,'NAME')    # Check for reserved words
     return t
 
-literals = ['(',')','{','}', ',' , ';', ':', '?','<' ,'>' , '[' , ']' ]
+literals = ['(',')','{','}', ',' , ';','-','+', ':', '?','<' ,'>' , '[' , ']' ]
 
 # Regular expression rules for simple tokens
 t_ASSIGN_OP = r'\='
 t_ADDRESS_OP = r'\&'
 t_POINTER_OP=r'\*'
-t_MINUS_OP=r'\-'
-t_ADD_OP=r'\+'
 
 def t_NUM(t):
     r'\d+'

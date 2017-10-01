@@ -5,12 +5,11 @@ arg1 = sys.argv[1]        # For taking input from command line.
 # Get the token map from the lexer.  This is required.
 from Scanner import tokens
 from astgenerator import *
+from TreeTraversal import *
 
-class Expr:
-    def __init__(self, value, type):
-        self.type= type
-        self.value=value	
-
+precedence = (
+	('left', '+', '-'),
+)
 #defines the starting grammar rule (top level rule)
 start = 'program'
 
@@ -23,6 +22,8 @@ def p_empty(p):
 def p_program(p):
     "program : variable_declarations procedure_definition_list"
     p[0]=program_grammar(p[1],p[2])
+    #print ("var *",p[0].variable_declarations_obj.variable_declaration_list_obj.variable_declaration_obj.var_list_obj.var_list_obj.pointer_variable_obj.variable_obj.name,",*",p[0].variable_declarations_obj.variable_declaration_list_obj.variable_declaration_obj.var_list_obj.ppointer_variable_obj.ppointer_variable_obj.pointer_variable_obj.variable_obj.name)
+    
     print ("Sucessfully parsed")
 	
 def p_proceduredefn_list(p):
@@ -30,7 +31,7 @@ def p_proceduredefn_list(p):
 								| empty'''
 	if len(p)==3:
 		p[0]= procedure_defination_list_grammar(p[1],p[2])
-		print(p[0].procedure_defination_obj.name)
+		
 	
 def p_proceduredefn(p):
 	"""procedure_definition : NAME '(' def_parameters ')' '{'  variable_declarations ex_statement_list return_stat '}' 
@@ -69,8 +70,7 @@ def p_callparameterlist(p):
 		p[0]=call_parameter_list_grammar(p[2])
     
 def p_variable_declarations(p):
-	'''variable_declarations : empty
-				| variable_declaration_list'''
+	'''variable_declarations : variable_declaration_list'''
 	global scope
 	scope=scope+1
 	if len(p)==2:
@@ -98,23 +98,15 @@ def p_varlistpointer(p):
 	length=len(symbolTable)-1
 	if len(symbolTable)==0:
 		varEntry = SymbolEntry(varnames[varCount-1], level,scope)
-		print("level=====",level)
-		print("Scope====",scope)	
 		symbolTable.append(varEntry)
-		for i in range (len(symbolTable)):
-			print(symbolTable[i].var, "\t", symbolTable[i].level,"\t",symbolTable[i].scope,"\n")
 	else:
 		if varnames[varCount-1] in symbolTable[length].var :
-			print ("Multiple declarations of =====",multipleVar)
+			print ("Multiple declarations of ",multipleVar)
 			flag=1
 
 		if (flag != 1):
 			varEntry= SymbolEntry(varnames[varCount-1], level,scope)
-			print("level=====",level)
-			print("Scope====",scope)	
 			symbolTable.append(varEntry)
-			for i in range (len(symbolTable)):
-				print(symbolTable[i].var, "\t", symbolTable[i].level,"\t",symbolTable[i].scope,"\n")
 			flag=0
 	level=0
 	if len(p)==2:
@@ -133,23 +125,14 @@ def p_varlist(p):
 	length=len(symbolTable)-1
 	if len(symbolTable)==0:
 		varEntry = SymbolEntry(varnames[varCount-1], level,scope)
-		print("level=====",level)
-		print("Scope====",scope)	
 		symbolTable.append(varEntry)
-		for i in range (len(symbolTable)):
-			print(symbolTable[i].var, "\t", symbolTable[i].level,"\t",symbolTable[i].scope,"\n")
 	else: 
 		if varnames[varCount-1] in symbolTable[length].var :
-			print ("Multiple declarations of =====",multipleVar)
-			flag=1
+				flag=1
 
 		if (flag != 1):
 			varEntry = SymbolEntry(varnames[varCount-1], level,scope)
-			print("level=====",level)	
-			print("Scope====",scope)
 			symbolTable.append(varEntry)
-			for i in range (len(symbolTable)):
-				print(symbolTable[i].var, "\t", symbolTable[i].level,"\t",symbolTable[i].scope,"\n")
 			flag=0
 	level=0
 	if len(p)==2:
@@ -159,7 +142,7 @@ def p_varlist(p):
 	
 def p_pointervariable(p):
 	''' pointer_variable :  POINTER_OP variable''' 
-	p[0]=pointer_op_var(p[1],p[2])
+	p[0]=pointer_op_var(p[2])
 
 def p_ppointervariable(p):
 	'''ppointer_var : POINTER_OP ppointer_var
@@ -171,13 +154,13 @@ def p_ppointervariable(p):
 		p[0]=p[1]
 		level+=1
 		p[0]=ppointer_var(p[1])
-	else:
+	if len(p)==3:
 		level +=1
-		p[0]=ppointer_var_list(p[1],p[2])
+		p[0]=ppointer_var_list(p[2])
 	
 def p_addrvariable(p):
 	'''addr_var : ADDRESS_OP variable'''
-	p[0]=addr_variableclass(p[1],p[2])
+	p[0]=addr_variableclass(p[2])
 		
 def p_exstatlist(p):
 	''' ex_statement_list : empty
@@ -216,9 +199,9 @@ def p_asgnstmt(p):
 	p[0]=assign(p[1],p[3])
 							
 def p_arithexpr(p):
-	''' arith_expression : arith_expression ADD_OP arith_expression
-						| arith_expression MINUS_OP arith_expression
-						 | expression_term '''
+	''' arith_expression : arith_expression '+' arith_expression
+				| arith_expression '-' arith_expression
+				| expression_term '''
 	global interVar
 	if len(p)==2:
 		p[0]=arithmetic_term_exp(p[1])
@@ -226,6 +209,7 @@ def p_arithexpr(p):
 	if len(p)==4:
 		p[0]=arithmetic_term_binop(p[1],p[2],p[3])
     		
+
 def p_exprtermvar(p):
 	'''expression_term : variable'''
 	p[1]=exp_var(p[1])
@@ -348,3 +332,5 @@ with open(arg1, 'r') as myfile:
     data=myfile.read()
 
 result= parser.parse(data)
+
+tree_traversal(result)

@@ -163,10 +163,10 @@ class var_list_ppointer(var_list):						#var_list : ppointer_var
 	def __init__(self, ppointer_variable_obj):
 		self.ppointer_variable_obj=ppointer_variable_obj
 		
-class var_list_ppointerlist(var_list):					#varlist:var_list ',' ppointer_var'
+class var_list_ppointerlist(var_list):					#varlist: var_list ',' ppointer_var'
 	ppointer_variable_obj=ppointer_variable()
 	var_list_obj=var_list()
-	def __init__(self, ppointer_variable_obj, var_list_obj):
+	def __init__(self,var_list_obj,ppointer_variable_obj):
 		self.ppointer_variable_obj=ppointer_variable_obj
 		self.var_list_obj=var_list_obj
 		
@@ -178,7 +178,7 @@ class var_list_variable(var_list):						#var_list : variable
 class var_list_variablelist(var_list):					#varlist:var_list ',' variable 
 	variable_obj=variable()
 	var_list_obj=var_list()
-	def __init__(self,variable_obj, var_list_obj):
+	def __init__(self,var_list_obj,variable_obj):
 		self.variable_obj=variable_obj
 		self.var_list_obj=var_list_obj
 
@@ -297,8 +297,7 @@ class constant_num(constant):							#constant : NUM
 	
 class ppointer_var_list(ppointer_variable):				#ppointer_var : POINTER_OP ppointer_var
 	ppointer_variable_obj=ppointer_variable()
-	def __init__(self,pointer_op,ppointer_variable_obj):
-		self.pointer_op=pointer_op
+	def __init__(self,ppointer_variable_obj):
 		self.ppointer_variable_obj=ppointer_variable_obj	
 	
 class ppointer_var(ppointer_variable):					#ppointer_var=pointer_variable 
@@ -308,14 +307,12 @@ class ppointer_var(ppointer_variable):					#ppointer_var=pointer_variable
 	
 class addr_variableclass(addr_variable):				#addr_var : ADDRESS_OP variable
 	variable_obj=variable()
-	def __init__(self,addr_op,variable_obj):
-		self.addr_op=addr_op
+	def __init__(self,variable_obj):
 		self.variable_obj=variable_obj
 	
 class pointer_op_var(pointer_variable):
 	variable_obj=variable()
-	def __init__(self,pointer_op,variable_obj):			#pointer_variable :  POINTER_OP variable
-		self.pointer_op=pointer_op
+	def __init__(self,variable_obj):			#pointer_variable :  POINTER_OP variable
 		self.variable_obj=variable_obj
 	
 class arithmetic_term_binop(arithmetic_term):			#arith_expression : arith_expression ADD_OP arith_expression
@@ -351,7 +348,7 @@ class use_pointer(use):									#use_stat : USE '(' ppointer_var ')' ';'
 	def __init__(self,ppointer_var_obj):
 		self.ppointer_var_obj=ppointer_var_obj
 		
-class label_num(uncond_goto):							# label : '<' BB NUM '>' ':' 
+class label_num(label):							# label : '<' BB NUM '>' ':' 
 	def __init__(self,num):
 		self.num=num
 		

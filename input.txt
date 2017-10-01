@@ -1,10 +1,10 @@
-var *w,*y;
-var **t,*f,*y;
+var **w,*y;
+var *a,*b,*c,*d,*e,s;
 main()
 {
 var a,b,*e;
 var *c,*d;
-var *p,*q, *x,*y,*c,z;
+var *p,*q, *x,*y,z;
 
 < bb 3>:
 	x=a+b+c+d;
