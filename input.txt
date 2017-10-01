@@ -1,39 +1,7 @@
 var ***w,**x;
-var **q;
-var *a,*b,*c,*d,*e,s;
 main()
 {
-var *c,*d;
-var *p,*q, *x,*y,z;
-
-< bb 3>:
-	x=a+b+c+d;
-	e = *x;
-< bb 4>:  
-< bb 3>:
-	d = &y;
-	goto <bb 5>:
-	c = &d;
-	d=&y;
-< bb 4>:
-	a = b;
-        a=p+q;
-	if()
-	    goto <bb 4>: 
-	goto <bb 2>:
-        use(*a);
-	use (*b);
-	goto <bb 5>:
-	a = *c;
-	// a-->y, a-->z
-	// d-->x,d-->x live: a,x
-	f(**a);
-	return **a;
-}
-
-f(var **a, var *b)
-{
-	var **u;
-	var z;
-    a=&b;
+    w=&x;
+    d=b+c;
+    a=8;
 }

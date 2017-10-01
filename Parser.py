@@ -20,17 +20,20 @@ def p_empty(p):
 
 #following is the grammar
 def p_program(p):
-    "program : variable_declarations procedure_definition_list"
-    p[0]=program_grammar(p[1],p[2])
-    #print ("var *",p[0].variable_declarations_obj.variable_declaration_list_obj.variable_declaration_obj.var_list_obj.var_list_obj.pointer_variable_obj.variable_obj.name,",*",p[0].variable_declarations_obj.variable_declaration_list_obj.variable_declaration_obj.var_list_obj.ppointer_variable_obj.ppointer_variable_obj.pointer_variable_obj.variable_obj.name)
-    
-    print ("Sucessfully parsed")
+	"program : variable_declarations procedure_definition_list"
+	p[0]=program_grammar(p[1],p[2])
+	print ("Sucessfully parsed")
 	
 def p_proceduredefn_list(p):
 	''' procedure_definition_list : procedure_definition_list procedure_definition 
 								| empty'''
 	if len(p)==3:
+		print("VarName\tlevel\tscope")
+		for i in range(len(symbolTable)):
+			print(symbolTable[i].var,"\t",symbolTable[i].level,"\t",symbolTable[i].scope)    
+
 		p[0]= procedure_defination_list_grammar(p[1],p[2])
+
 		
 	
 def p_proceduredefn(p):
@@ -40,6 +43,8 @@ def p_proceduredefn(p):
 	if len(p)==10:
 		p[0]=procedure_defination_grammar(p[1],p[3],p[6],p[7],p[8])
 	level=0
+
+
 	
 def p_parametersfordef(p):
 	''' def_parameters : VAR ppointer_var def_parameter_list
@@ -72,13 +77,14 @@ def p_callparameterlist(p):
 def p_variable_declarations(p):
 	'''variable_declarations : variable_declaration_list'''
 	global scope
+	
 	scope=scope+1
 	if len(p)==2:
 		p[0]=variable_declarations_grammar(p[1])
 
 def p_variabledeclarationlist(p):
 	''' variable_declaration_list : empty
-				  | variable_declaration_list variable_declaration	'''
+				  | variable_declaration_list variable_declaration '''
 	if len(p)==3:
 		p[0]=variable_dec_stat(p[1],p[2])
 						 
@@ -100,10 +106,10 @@ def p_varlistpointer(p):
 		varEntry = SymbolEntry(varnames[varCount-1], level,scope)
 		symbolTable.append(varEntry)
 	else:
-		if varnames[varCount-1] in symbolTable[length].var :
+		if varnames[varCount-1] in symbolTable[length].var:
 			print ("Multiple declarations of ",multipleVar)
 			flag=1
-
+		
 		if (flag != 1):
 			varEntry= SymbolEntry(varnames[varCount-1], level,scope)
 			symbolTable.append(varEntry)
@@ -119,9 +125,9 @@ def p_varlist(p):
 	     | var_list ',' variable '''
 	global level
 	global varCount
-	global multipleVar
 	global scope
 	flag=0
+	global multipleVar
 	length=len(symbolTable)-1
 	if len(symbolTable)==0:
 		varEntry = SymbolEntry(varnames[varCount-1], level,scope)
@@ -166,7 +172,7 @@ def p_exstatlist(p):
 	''' ex_statement_list : empty
 				| ex_statement_list statement '''
 	if len(p)==3:
-		statement_list(p[1],p[2])
+		p[0]=statement_list(p[1],p[2])
 	
 	
 def p_stmt(p):
@@ -192,7 +198,7 @@ def p_stmt_procedure_call(p):
 def p_stmtlabel(p):
 	''' statement : label'''
 	p[0]=label_stat(p[1])
-				  
+  
 def p_asgnstmt(p):
 	''' assignment_statement : expression_term ASSIGN_OP arith_expression ';' '''
 	global interVar
@@ -212,7 +218,8 @@ def p_arithexpr(p):
 
 def p_exprtermvar(p):
 	'''expression_term : variable'''
-	p[1]=exp_var(p[1])
+	p[0]=exp_var(p[1])
+	
 
 def p_exprtermpointervar(p):
 	'''expression_term : ppointer_var'''

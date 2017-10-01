@@ -128,15 +128,15 @@ class procedure_defination_list_grammar(procedure_defination_list):
 		self.procedure_defination_list_obj=procedure_defination_list_obj
 		self.procedure_defination_obj=procedure_defination_obj
 
-class procedure_defination_grammar(procedure_defination):
-	variable_declaration_list_obj=variable_declaration_list()
+class procedure_defination_grammar(procedure_defination):			#procedure_definition : NAME '(' def_parameters ')' '{'  variable_declarations ex_statement_list return_stat 
+	variable_declarations_obj=variable_declarations()
 	def_parameters_obj=def_parameters()
 	ex_statement_list_obj=ex_statement_list()
 	return_stat_obj=return_stat()
-	def __init__(self,name,def_parameters_obj,variable_declaration_list_obj,ex_statement_list_obj,return_stat_obj):
+	def __init__(self,name,def_parameters_obj,variable_declarations_obj,ex_statement_list_obj,return_stat_obj):
 		self.name=name
 		self.def_parameters_obj=def_parameters_obj
-		self.variable_declaration_list_obj=variable_declaration_list_obj
+		self.variable_declarations_obj=variable_declarations_obj
 		self.ex_statement_list_obj=ex_statement_list_obj
 		self.return_stat_obj=return_stat_obj
 
@@ -189,6 +189,11 @@ class statement_list(ex_statement_list):				#ex_statement_list : ex_statement_li
 		self.ex_statement_list_obj=ex_statement_list_obj
 		self.statement_obj=statement_obj
 		
+class statement_one(ex_statement_list):					#ex_statement_list : statement
+	statement_obj=statement()
+	def __init__(self,statement_obj):
+		self.statement_obj=statement_obj
+
 class assignment_statement_list(statement):				#statement : assignment_statement
 	assignment_statement_obj=assignment_statement()
 	def __init__(self,assignment_statement_obj):
@@ -320,14 +325,15 @@ class arithmetic_term_binop(arithmetic_term):			#arith_expression : arith_expres
 	arithmetic_term_obj2=arithmetic_term()
 	def __init__(self,arithmetic_term_obj1,bin_op,arithmetic_term_obj2):
 		self.bin_op=bin_op
+		print("=====",self.bin_op)
 		self.arithmetic_term_obj1=arithmetic_term_obj1
 		self.arithmetic_term_obj2=arithmetic_term_obj2
 		
 class arithmetic_term_exp(arithmetic_term):			#arith_expression : expression_term 
-	expression_term_obj=expression_term()
+	expression_term_obj=expression_term()  
 	def __init__(self,expression_term_obj):
-		self.expression_term_obj=expression_term
-
+		self.expression_term_obj=expression_term_obj
+		
 class if_goto_grammer(cond_goto):							#cond_goto : IF '(' ')' if_cond_goto 
 	if_goto_obj=if_goto()
 	def __init__(self,if_goto_obj):
