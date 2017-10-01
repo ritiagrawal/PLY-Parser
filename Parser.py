@@ -67,42 +67,49 @@ def p_varlistpointer(p):
 	global multipleVar
 	flag=0
 	length=len(symbolTable)-1
-	
-	if varnames[varCount-1] in symbolTable[length].var :
-		print ("Multiple declarations of =====",multipleVar)
-		flag=1
-		
-	if (flag != 1):
-		varEntry= SymbolEntry(varnames[varCount-1], level)
+	if len(symbolTable)==0:
+		varEntry = SymbolEntry(varnames[varCount-1], level)
 		print("level=====",level)	
 		symbolTable.append(varEntry)
 		for i in range (len(symbolTable)):
 			print(symbolTable[i].var, "\t", symbolTable[i].level,"\n")
+	else:
+		if varnames[varCount-1] in symbolTable[length].var :
+			print ("Multiple declarations of =====",multipleVar)
+			flag=1
+			
+		if (flag != 1):
+			varEntry= SymbolEntry(varnames[varCount-1], level)
+			print("level=====",level)	
+			symbolTable.append(varEntry)
+			for i in range (len(symbolTable)):
+				print(symbolTable[i].var, "\t", symbolTable[i].level,"\n")
 	level=0
+	
 def p_varlist(p):
 	'''var_list : variable
 	     | var_list ',' variable '''
 	global level
 	global varCount
+	global multipleVar
 	flag=0
-	if len(p)==2:
-		for i in range (len(symbolTable)):
-			if p[1] in symbolTable[i].var :
-				print ("Multiple declarations of ",p[1])
-				flag=1
-				break
-	else:
-		for i in range (len(symbolTable)):
-			if p[3] in symbolTable[i].var :
-				print ("Multiple declarations of ",p[3])
-				flag=1
-				break
-	if (flag != 1):
-		varEntry= SymbolEntry(varnames[varCount-1], level)
+	length=len(symbolTable)-1
+	if len(symbolTable)==0:
+		varEntry = SymbolEntry(varnames[varCount-1], level)
 		print("level=====",level)	
 		symbolTable.append(varEntry)
 		for i in range (len(symbolTable)):
 			print(symbolTable[i].var, "\t", symbolTable[i].level,"\n")
+	else: 
+		if varnames[varCount-1] in symbolTable[length].var :
+			print ("Multiple declarations of ",multipleVar)
+			flag=1
+		if (flag != 1):
+			varEntry = SymbolEntry(varnames[varCount-1], level)
+			print("level=====",level)	
+			symbolTable.append(varEntry)
+			for i in range (len(symbolTable)):
+				print(symbolTable[i].var, "\t", symbolTable[i].level,"\n")
 	level=0
 	
 def p_pointervariable(p):
