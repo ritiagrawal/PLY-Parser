@@ -6,8 +6,10 @@ class tree_traversal():
 			try:
 				pointer_variable = ppointer_variable.pointer_variable_obj.variable_obj.name
 				#print(self.pointers,pointer_variable)
-				self.variables = self.variables + '%s' %self.pointers + '%s' %pointer_variable 
-				
+				if self.flag_p==0:
+					self.variables = self.variables + '%s' %self.pointers + '%s' %pointer_variable 
+				else:
+					self.statement = self.statement + '%s' %self.pointers + '%s' %pointer_variable 
 			except:
 				pass
 			try:
@@ -50,7 +52,11 @@ class tree_traversal():
 		
 		except:
 			pass
-
+		
+	def label_traversal(self,label_obj):
+		label = "<bb "+ str(label_obj.num )+">:"
+		self.statement = self.statement + " %s" %label
+	
 	def statement_traversal(self, statement):
 		try:
 			self.statement=self.statement + "\n"
@@ -100,22 +106,31 @@ class tree_traversal():
 			pass
 		try:
 			cond_goto=statement.cond_goto_obj
+			if_goto = cond_goto.if_goto_obj
+			self.statement = self.statement + str("if ()\n")
+			self.label_traversal(if_goto.label_obj)
 		except:
 			pass
 		try:
 			uncond_goto=statement.uncond_goto_obj
+			self.label_traversal(uncond_goto.label_obj)
 		except:
 			pass
 		try:
 			label=statement.label_obj
+			self.label_traversal(label)
 		except:
 			pass
 		try:
-			use=use_obj
+			use=statement.use_obj
+			self.statement = self.statement + str("use(")
+			self.ppointer_var_traversal(use.ppointer_var_obj)
+			self.statement = self.statement + str(")")
 		except:
 			pass
 		try:
 			call_parameters= statement.call_parameters_obj
+			print (call_parameters)
 		except:
 			pass
 
@@ -200,8 +215,7 @@ class tree_traversal():
 		self.pointers='*'
 		self.variables='\nvar'
 		self.statement=''
+		self.flag_p=0
 		self.var_decl_traversal(tree)
+		self.flag_p=1
 		self.procedure_def_traversal(tree)
-					
-	
-

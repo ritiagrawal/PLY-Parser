@@ -4,4 +4,8 @@ main()
     w=&x;
     d=b+c;
     a=8;
+	use(*a);
+	if()
+	goto<bb 1>:
 }
+

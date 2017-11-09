@@ -145,7 +145,7 @@ def p_varlist(p):
 		p[0]=var_list_variable(p[1])
 	else:
 		p[0]=var_list_variablelist(p[1],p[3])
-	
+
 def p_pointervariable(p):
 	''' pointer_variable :  POINTER_OP variable''' 
 	p[0]=pointer_op_var(p[2])
