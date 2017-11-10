@@ -99,7 +99,7 @@ class tree_traversal():
 						flag=0
 						break
 			except:
-				print(self.statement)
+				#print(self.statement)
 				pass
 
 		except:
@@ -129,13 +129,21 @@ class tree_traversal():
 		except:
 			pass
 		try:
-			call_parameters= statement.call_parameters_obj
-			print (call_parameters)
+			call_procedure_name=statement.procedure_call_obj.name
+			self.statement = self.statement + "%s" %call_procedure_name+str("(")
+			try:
+				call_parameters=statement.procedure_call_obj.call_parameters_obj
+				while(call_parameters):
+					self.ppointer_var_traversal(call_parameters.ppointer_variable_obj)
+					call_parameters=call_parameters.call_parameter_list_obj.call_parameters_obj
+					self.statement = self.statement + str(",")
+				self.statement = self.statement + str(")")
+			except:
+				self.statement = self.statement + str(")")
 		except:
 			pass
 
 	def ex_statement_list_traversal(self,ex_statement_list):
-		print("ex_statement_traversal")
 		while(ex_statement_list):
 			try:
 				statement=ex_statement_list.statement_obj
@@ -178,23 +186,21 @@ class tree_traversal():
 				variable_declaration_list=variable_declaration_list.variable_declaration_list_obj	
 			except:
 				break
-				
-		print("End\n")
 		
 	def procedure_def_traversal(self,tree):
 		procedure_defination_list = tree.procedure_defination_list_obj
 		while(procedure_defination_list):
 			try:
 				procedure_defination = procedure_defination_list.procedure_defination_obj
-				print(procedure_defination.name)
-				self.var_decl_traversal(procedure_defination)
+				self.statement=self.statement +"%s" %procedure_defination.name
+				self.statement=self.statement + str("(")
 			except:
 				print("EXCEPT 1")
 				pass
 			try:
 				def_parameters = procedure_defination_list.procedure_defination_obj.def_parameters_obj
 				self.def_parameters_traversal(def_parameters)
-				
+				self.statement = self.statement + str("){")
 			except:
 				pass
 			try:
@@ -204,17 +210,19 @@ class tree_traversal():
 				print("EXCEPT 2")
 				pass
 			try:
+				print(self.statement)
+				print ("}\n")
+				self.statement=""
 				procedure_defination_list=procedure_defination_list.procedure_defination_list_obj
 			except:
 				print("EXCEPT 3")
 				break
-		print("Procedure traversal")
 		
 
 	def __init__(self,tree):
 		self.pointers='*'
 		self.variables='\nvar'
-		self.statement=''
+		self.statement=""
 		self.flag_p=0
 		self.var_decl_traversal(tree)
 		self.flag_p=1

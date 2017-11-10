@@ -325,7 +325,6 @@ class arithmetic_term_binop(arithmetic_term):			#arith_expression : arith_expres
 	arithmetic_term_obj2=arithmetic_term()
 	def __init__(self,arithmetic_term_obj1,bin_op,arithmetic_term_obj2):
 		self.bin_op=bin_op
-		print("=====",self.bin_op)
 		self.arithmetic_term_obj1=arithmetic_term_obj1
 		self.arithmetic_term_obj2=arithmetic_term_obj2
 		
@@ -373,4 +372,3 @@ class return_variable(return_stat):							# return_stat : RETURN variable ';'
 	def __init__(self, variable_obj):
 		self.variable_obj=variable_obj
 		
-

@@ -25,14 +25,14 @@ def p_program(p):
 	print ("Sucessfully parsed")
 	
 def p_proceduredefn_list(p):
-	''' procedure_definition_list : procedure_definition_list procedure_definition 
+	''' procedure_definition_list : procedure_definition  procedure_definition_list
 								| empty'''
 	if len(p)==3:
 		print("VarName\tlevel\tscope")
 		for i in range(len(symbolTable)):
 			print(symbolTable[i].var,"\t",symbolTable[i].level,"\t",symbolTable[i].scope)    
 
-		p[0]= procedure_defination_list_grammar(p[1],p[2])
+		p[0]= procedure_defination_list_grammar(p[2],p[1])
 
 		
 	
@@ -84,9 +84,9 @@ def p_variable_declarations(p):
 
 def p_variabledeclarationlist(p):
 	''' variable_declaration_list : empty
-				  | variable_declaration_list variable_declaration '''
+				  | variable_declaration variable_declaration_list '''
 	if len(p)==3:
-		p[0]=variable_dec_stat(p[1],p[2])
+		p[0]=variable_dec_stat(p[2],p[1])
 						 
 def p_variabledeclaration(p):
 	''' variable_declaration : VAR var_list ';'
@@ -95,7 +95,7 @@ def p_variabledeclaration(p):
 	
 def p_varlistpointer(p):
 	'''var_list : ppointer_var
-		| var_list ',' ppointer_var'''
+		| ppointer_var ',' var_list '''
 	global level
 	global varCount
 	global multipleVar
@@ -118,11 +118,11 @@ def p_varlistpointer(p):
 	if len(p)==2:
 		p[0]=var_list_ppointer(p[1])
 	else:
-		p[0]=var_list_ppointerlist(p[1],p[3])
+		p[0]=var_list_ppointerlist(p[3],p[1])
 		
 def p_varlist(p):
 	'''var_list : variable
-	     | var_list ',' variable '''
+	     | variable ',' var_list '''
 	global level
 	global varCount
 	global scope
@@ -144,7 +144,7 @@ def p_varlist(p):
 	if len(p)==2:
 		p[0]=var_list_variable(p[1])
 	else:
-		p[0]=var_list_variablelist(p[1],p[3])
+		p[0]=var_list_variablelist(p[3],p[1])
 
 def p_pointervariable(p):
 	''' pointer_variable :  POINTER_OP variable''' 
@@ -170,9 +170,9 @@ def p_addrvariable(p):
 		
 def p_exstatlist(p):
 	''' ex_statement_list : empty
-				| ex_statement_list statement '''
+				| statement ex_statement_list  '''
 	if len(p)==3:
-		p[0]=statement_list(p[1],p[2])
+		p[0]=statement_list(p[2],p[1])
 	
 	
 def p_stmt(p):
@@ -191,13 +191,14 @@ def p_stmt_use_stat	(p):
 	'''statement : use_stat'''
 	p[0]=use_stat(p[1])
 	
-def p_stmt_procedure_call(p):
-	'''statement : procedure_call'''
-	p[0]=procedure_call_stat(p[1])
 	    	       
 def p_stmtlabel(p):
 	''' statement : label'''
 	p[0]=label_stat(p[1])
+
+def p_stmt_procedure_call(p):
+	'''statement : procedure_call'''
+	p[0]=procedure_call_stat(p[1])
   
 def p_asgnstmt(p):
 	''' assignment_statement : expression_term ASSIGN_OP arith_expression ';' '''
@@ -325,8 +326,6 @@ def p_usestat(p):
 def p_label(p):
     ''' label : '<' BB NUM '>' ':' '''
     p[0]=label_num(p[3])
-	
-	
 				
 #for error handling
 def p_error(p):
