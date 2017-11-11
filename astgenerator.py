@@ -139,8 +139,7 @@ class procedure_defination_grammar(procedure_defination):			#procedure_definitio
 		self.variable_declarations_obj=variable_declarations_obj
 		self.ex_statement_list_obj=ex_statement_list_obj
 		self.return_stat_obj=return_stat_obj
-
-
+		
 class variable_declarations_grammar(variable_declarations):			# variable_declarations: variable_declaration_list
 	variable_declaration_list_obj=variable_declaration_list()
 	def __init__(self, variable_declaration_list_obj):

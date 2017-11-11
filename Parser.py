@@ -44,7 +44,6 @@ def p_proceduredefn(p):
 		p[0]=procedure_defination_grammar(p[1],p[3],p[6],p[7],p[8])
 	level=0
 
-
 	
 def p_parametersfordef(p):
 	''' def_parameters : VAR ppointer_var def_parameter_list
@@ -287,7 +286,7 @@ def p_arr_var(p):
 		varCount+=1
    
 def p_arrayvar(p):
-    ''' arr_var : NAME '[' NUM ']' '''		  
+    ''' arr_var : NAME '[' NUM ']' '''		 
     p[0]=p[1]
 	
 def p_cons(p):
@@ -299,13 +298,13 @@ def p_returnppointer(p):
 	''' return_stat : RETURN ppointer_var ';' '''
 	global level
 	level=0
-	return_ppointer_var(p[2])
+	p[0]=return_ppointer_var(p[2])
 	
 def p_return_addrvar(p):
 	''' return_stat : RETURN addr_var ';' '''
 	global level
 	level=0
-	p[0]=return_variable(p[1])
+	p[0]=return_variable(p[2])
 
 def p_return_var(p):
 	''' return_stat : RETURN variable ';' '''

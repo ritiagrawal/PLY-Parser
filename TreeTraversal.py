@@ -210,6 +210,24 @@ class tree_traversal():
 				print("EXCEPT 2")
 				pass
 			try:
+				ret_statement=procedure_defination_list.procedure_defination_obj.return_stat_obj.ppointer_var_obj
+				self.statement=self.statement+str("\nreturn");
+				self.ppointer_var_traversal(ret_statement)
+				
+			except:
+				pass
+			try:
+				ret_statement=procedure_defination_list.procedure_defination_obj.return_stat_obj.variable_obj.name
+				self.statement=self.statement+str("\nreturn %s " %ret_statement)
+			except:
+				pass
+			try:
+				ret_statement=procedure_defination_list.procedure_defination_obj.return_stat_obj.variable_obj.variable_obj.name
+				self.statement=self.statement+str("\nreturn  &%s " %ret_statement)
+			except:
+				print("??????")
+				pass
+			try:
 				print(self.statement)
 				print ("}\n")
 				self.statement=""
@@ -217,7 +235,7 @@ class tree_traversal():
 			except:
 				print("EXCEPT 3")
 				break
-		
+			
 
 	def __init__(self,tree):
 		self.pointers='*'
