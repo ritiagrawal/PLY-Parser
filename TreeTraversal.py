@@ -1,3 +1,20 @@
+class node:
+	def __init__(self,label,data,pred,succ):
+		self.label=label
+		self.data=data
+		self.pred=pred
+		self.succ=succ
+		
+global labels
+labels=0
+
+arr=list()
+
+Head=node(0,0,None, None)
+arr.append(Head)
+#print ("??!!!!!!!!!!!!??????")
+print (arr[0].data)
+
 class tree_traversal():
 	def ppointer_var_traversal(self,ppointer_variable):
 		#print("going in funct")
@@ -10,11 +27,31 @@ class tree_traversal():
 					self.variables = self.variables + '%s' %self.pointers + '%s' %pointer_variable 
 				else:
 					self.statement = self.statement + '%s' %self.pointers + '%s' %pointer_variable 
+					if(self.onestmt == "" or self.use_flag==1):
+						self.onestmt = self.onestmt + '%s' %self.pointers + '%s' %pointer_variable
+						self.o_flag=1
+
+					elif(self.onestmt != "" and self.o_flag==1):
+						self.onestmt = self.onestmt + '%s' %self.pointers + '%s' %pointer_variable
+						global labels
+						labels=labels+1
+						node1=node(labels,self.onestmt,(labels-1), (labels+1))
+						arr.append(node1)
+						print ("-------------------")
+						print ("Current Label",arr[labels].label)
+						print ("DATA : ",arr[labels].data)
+						print ("Predeccesor Label",arr[labels].pred)
+						print ("Successor Label",arr[labels].succ)
+						print ("-------------------")
+						self.onestmt=""
+						self.o_flag=0
+
 			except:
 				pass
 			try:
 				ppointer_variable = ppointer_variable.ppointer_variable_obj
 				self.pointers ='*%s' %self.pointers
+				
 			except:
 				break
 
@@ -34,6 +71,26 @@ class tree_traversal():
 		try:
 			variable = expression_term.variable_obj.name 
 			self.statement = self.statement + variable
+			if(self.onestmt == ""):
+				
+				self.onestmt = self.onestmt + variable
+				self.o_flag=1
+
+			elif(self.onestmt != "" and self.o_flag==1):
+				self.onestmt = self.onestmt + variable
+				global labels
+				labels=labels+1
+				node1=node(labels,self.onestmt,(labels-1), (labels+1))
+				arr.append(node1)
+				print ("-------------------")
+				print ("Current Label",arr[labels].label)
+				print ("DATA : ",arr[labels].data)
+				print ("Predeccesor Label",arr[labels].pred)
+				print ("Successor Label",arr[labels].succ)
+				print ("-------------------")
+				self.onestmt=""
+				self.o_flag=0
+				
 		except:
 			pass
 		try:
@@ -41,9 +98,20 @@ class tree_traversal():
 		except:
 			pass
 		try:
+			global labels
 			addr_var=expression_term.addr_variable_obj.variable_obj.name
 			self.statement = self.statement + " & %s" %addr_var
-			
+			self.onestmt=self.onestmt+" & %s" %addr_var
+			labels=labels+1
+			node1=node(labels,self.onestmt,(labels-1), (labels+1))
+			arr.append(node1)
+			print ("-------------------")
+			print ("Current Label",arr[labels].label)
+			print ("DATA : ",arr[labels].data)
+			print ("Predeccesor Label",arr[labels].pred)
+			print ("Successor Label",arr[labels].succ)
+			print ("-------------------")
+			self.onestmt=""
 		except:
 			pass
 		try:
@@ -58,17 +126,20 @@ class tree_traversal():
 		self.statement = self.statement + " %s" %label
 	
 	def statement_traversal(self, statement):
+		self.use_flag=0
 		try:
+			global labels
 			self.statement=self.statement + "\n"
 			assignment_statement= statement.assignment_statement_obj
 			try:
 				expression_term=assignment_statement.expression_term_obj
 				self.expression_term_traversal(expression_term)
 				self.statement = "%s = " %self.statement
+				self.onestmt= "%s = " %self.onestmt
+
 			except:
 				pass
 			try:
-				
 				arithmetic_term=assignment_statement.arithmetic_term_obj
 				while(arithmetic_term):
 					try:
@@ -122,10 +193,25 @@ class tree_traversal():
 		except:
 			pass
 		try:
+			global labels
 			use=statement.use_obj
 			self.statement = self.statement + str("use(")
+			self.onestmt = str("use(")
+			self.use_flag=1;
 			self.ppointer_var_traversal(use.ppointer_var_obj)
+			self.onestmt = self.onestmt + str(")")
 			self.statement = self.statement + str(")")
+			labels = labels+1
+			node1= node(labels,self.onestmt,(labels-1), (labels+1))
+			arr.append(node1)
+			print ("-------------------")
+			print ("Current Label",arr[labels].label)
+			print ("DATA : ",arr[labels].data)
+			print ("Predeccesor Label",arr[labels].pred)
+			print ("Successor Label",arr[labels].succ)
+			print ("-------------------")
+			self.onestmt=""
+			self.o_flag=0
 		except:
 			pass
 		try:
@@ -211,21 +297,55 @@ class tree_traversal():
 				pass
 			try:
 				ret_statement=procedure_defination_list.procedure_defination_obj.return_stat_obj.ppointer_var_obj
-				self.statement=self.statement+str("\nreturn");
+				self.statement=self.statement+str("\nreturn ");
+				self.onestmt=("return ")
 				self.ppointer_var_traversal(ret_statement)
+				labels=labels+1
+				node1=node(labels,self.onestmt,(labels-1), (labels+1))
+				arr.append(node1)
+				print ("-------------------")
+				print ("Current Label",arr[labels].label)
+				print ("DATA : ",arr[labels].data)
+				print ("Predeccesor Label",arr[labels].pred)
+				print ("Successor Label",arr[labels].succ)
+				print ("-------------------")
+			except:
+				pass
+			try:
+				global labels
+				ret_statement=procedure_defination_list.procedure_defination_obj.return_stat_obj.variable_obj.name
+				self.statement=self.statement+str("\nreturn %s " %ret_statement)
+				self.onestmt="return  %s" %ret_statement
+				labels=labels+1
+				node1=node(labels,self.onestmt,(labels-1), (labels+1))
+				arr.append(node1)
+				print ("-------------------")
+				print ("Current Label",arr[labels].label)
+				print ("DATA : ",arr[labels].data)
+				print ("Predeccesor Label",arr[labels].pred)
+				print ("Successor Label",arr[labels].succ)
+				print ("-------------------")
+				self.onestmt=""
 				
 			except:
 				pass
 			try:
-				ret_statement=procedure_defination_list.procedure_defination_obj.return_stat_obj.variable_obj.name
-				self.statement=self.statement+str("\nreturn %s " %ret_statement)
-			except:
-				pass
-			try:
+				global labels
 				ret_statement=procedure_defination_list.procedure_defination_obj.return_stat_obj.variable_obj.variable_obj.name
 				self.statement=self.statement+str("\nreturn  &%s " %ret_statement)
+				self.onestmt="return  &%s" %ret_statement
+				labels=labels+1
+				node1=node(labels,self.onestmt,(labels-1), (labels+1))
+				arr.append(node1)
+				print ("-------------------")
+				print ("Current Label",arr[labels].label)
+				print ("DATA : ",arr[labels].data)
+				print ("Predeccesor Label",arr[labels].pred)
+				print ("Successor Label",arr[labels].succ)
+				print ("-------------------")
+				self.onestmt=""				
 			except:
-				print("??????")
+				
 				pass
 			try:
 				print(self.statement)
@@ -241,7 +361,9 @@ class tree_traversal():
 		self.pointers='*'
 		self.variables='\nvar'
 		self.statement=""
+		self.onestmt=""
 		self.flag_p=0
 		self.var_decl_traversal(tree)
 		self.flag_p=1
 		self.procedure_def_traversal(tree)
+		self.o_flag=0

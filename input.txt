@@ -1,12 +1,14 @@
-var *a,*b,*c;
+var *a,*b;
 main()
 {
-  	b=a+c;
+	use(*b);
+	a=b;
+	a=&b;
+	a=*b;
+	*a=b;
+	*a=*b;
+	*a=&b;
 	use(*a);
-	if()
-		goto <bb 4>:
-<bb 4>:
-	fd();
-	
-return *a;
+	return *a;
 }
+

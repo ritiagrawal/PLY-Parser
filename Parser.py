@@ -94,7 +94,7 @@ def p_variabledeclaration(p):
 	
 def p_varlistpointer(p):
 	'''var_list : ppointer_var
-		| ppointer_var ',' var_list '''
+		| var_list  ',' ppointer_var '''
 	global level
 	global varCount
 	global multipleVar
@@ -117,11 +117,11 @@ def p_varlistpointer(p):
 	if len(p)==2:
 		p[0]=var_list_ppointer(p[1])
 	else:
-		p[0]=var_list_ppointerlist(p[3],p[1])
+		p[0]=var_list_ppointerlist(p[1],p[3])
 		
 def p_varlist(p):
 	'''var_list : variable
-	     | variable ',' var_list '''
+	     | var_list ',' variable '''
 	global level
 	global varCount
 	global scope
@@ -139,11 +139,12 @@ def p_varlist(p):
 			varEntry = SymbolEntry(varnames[varCount-1], level,scope)
 			symbolTable.append(varEntry)
 			flag=0
+			
 	level=0
 	if len(p)==2:
 		p[0]=var_list_variable(p[1])
 	else:
-		p[0]=var_list_variablelist(p[3],p[1])
+		p[0]=var_list_variablelist(p[1],p[3])
 
 def p_pointervariable(p):
 	''' pointer_variable :  POINTER_OP variable''' 
@@ -267,7 +268,7 @@ def p_var(p):
 				flag=1
 				break
 	if (flag == 0):
-		varnames.append(p[1]) 
+		varnames.append(p[1])
 		varCount+=1
 		flag=0
 

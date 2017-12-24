@@ -268,7 +268,7 @@ class exp_var(expression_term):							#expression_term : variable
 class exp_ppointer_var(expression_term):				#expression_term : ppointer_var
 	ppointer_variable_obj=ppointer_variable()
 	def __init__(self,ppointer_variable_obj):
-		ppointer_variable_obj=ppointer_variable_obj
+		self.ppointer_variable_obj=ppointer_variable_obj
 	
 		
 class exp_addr_var(expression_term):					#expression_term : addr_var
