@@ -4,6 +4,8 @@ class node:
 		self.data=data
 		self.pred=pred
 		self.succ=succ
+		self.predecessor=None
+		self.successor=None
 		
 global labels
 labels=0
@@ -13,7 +15,7 @@ arr=list()
 Head=node(0,0,None, None)
 arr.append(Head)
 #print ("??!!!!!!!!!!!!??????")
-print (arr[0].data)
+print (arr[0])
 
 class tree_traversal():
 	def ppointer_var_traversal(self,ppointer_variable):
@@ -37,11 +39,15 @@ class tree_traversal():
 						labels=labels+1
 						node1=node(labels,self.onestmt,(labels-1), (labels+1))
 						arr.append(node1)
+						arr[labels].predecessor=arr[labels-1]
+						arr[labels-1].successor=arr[labels]
 						print ("-------------------")
 						print ("Current Label",arr[labels].label)
 						print ("DATA : ",arr[labels].data)
 						print ("Predeccesor Label",arr[labels].pred)
 						print ("Successor Label",arr[labels].succ)
+						print ("Successor ",arr[labels].successor)
+						print ("Predecessor ",arr[labels].predecessor)
 						print ("-------------------")
 						self.onestmt=""
 						self.o_flag=0
@@ -82,11 +88,15 @@ class tree_traversal():
 				labels=labels+1
 				node1=node(labels,self.onestmt,(labels-1), (labels+1))
 				arr.append(node1)
+				arr[labels].predecessor=arr[labels-1]
+				arr[labels-1].successor=arr[labels]
 				print ("-------------------")
 				print ("Current Label",arr[labels].label)
 				print ("DATA : ",arr[labels].data)
 				print ("Predeccesor Label",arr[labels].pred)
 				print ("Successor Label",arr[labels].succ)
+				print ("Successor ",arr[labels].successor)
+				print ("Predecessor ",arr[labels].predecessor)
 				print ("-------------------")
 				self.onestmt=""
 				self.o_flag=0
@@ -98,18 +108,21 @@ class tree_traversal():
 		except:
 			pass
 		try:
-			global labels
 			addr_var=expression_term.addr_variable_obj.variable_obj.name
 			self.statement = self.statement + " & %s" %addr_var
 			self.onestmt=self.onestmt+" & %s" %addr_var
 			labels=labels+1
 			node1=node(labels,self.onestmt,(labels-1), (labels+1))
 			arr.append(node1)
+			arr[labels].predecessor=arr[labels-1]
+			arr[labels-1].successor=arr[labels]
 			print ("-------------------")
 			print ("Current Label",arr[labels].label)
 			print ("DATA : ",arr[labels].data)
 			print ("Predeccesor Label",arr[labels].pred)
 			print ("Successor Label",arr[labels].succ)
+			print ("Successor ",arr[labels].successor)
+			print ("Predecessor ",arr[labels].predecessor)
 			print ("-------------------")
 			self.onestmt=""
 		except:
@@ -204,11 +217,15 @@ class tree_traversal():
 			labels = labels+1
 			node1= node(labels,self.onestmt,(labels-1), (labels+1))
 			arr.append(node1)
+			arr[labels].predecessor=arr[labels-1]
+			arr[labels-1].successor=arr[labels]
 			print ("-------------------")
 			print ("Current Label",arr[labels].label)
 			print ("DATA : ",arr[labels].data)
 			print ("Predeccesor Label",arr[labels].pred)
 			print ("Successor Label",arr[labels].succ)
+			print ("Successor ",arr[labels].successor)
+			print ("Predecessor ",arr[labels].predecessor)
 			print ("-------------------")
 			self.onestmt=""
 			self.o_flag=0
@@ -274,6 +291,7 @@ class tree_traversal():
 				break
 		
 	def procedure_def_traversal(self,tree):
+		global labels
 		procedure_defination_list = tree.procedure_defination_list_obj
 		while(procedure_defination_list):
 			try:
@@ -303,45 +321,55 @@ class tree_traversal():
 				labels=labels+1
 				node1=node(labels,self.onestmt,(labels-1), (labels+1))
 				arr.append(node1)
+				arr[labels].predecessor=arr[labels-1]
+				arr[labels-1].successor=arr[labels]
 				print ("-------------------")
 				print ("Current Label",arr[labels].label)
 				print ("DATA : ",arr[labels].data)
 				print ("Predeccesor Label",arr[labels].pred)
 				print ("Successor Label",arr[labels].succ)
+				print ("Successor ",arr[labels].successor)
+				print ("Predecessor ",arr[labels].predecessor)
 				print ("-------------------")
 			except:
 				pass
 			try:
-				global labels
 				ret_statement=procedure_defination_list.procedure_defination_obj.return_stat_obj.variable_obj.name
 				self.statement=self.statement+str("\nreturn %s " %ret_statement)
 				self.onestmt="return  %s" %ret_statement
 				labels=labels+1
 				node1=node(labels,self.onestmt,(labels-1), (labels+1))
 				arr.append(node1)
+				arr[labels].predecessor=arr[labels-1]
+				arr[labels-1].successor=arr[labels]
 				print ("-------------------")
 				print ("Current Label",arr[labels].label)
 				print ("DATA : ",arr[labels].data)
 				print ("Predeccesor Label",arr[labels].pred)
 				print ("Successor Label",arr[labels].succ)
+				print ("Successor ",arr[labels].successor)
+				print ("Predecessor ",arr[labels].predecessor)
 				print ("-------------------")
 				self.onestmt=""
 				
 			except:
 				pass
 			try:
-				global labels
 				ret_statement=procedure_defination_list.procedure_defination_obj.return_stat_obj.variable_obj.variable_obj.name
 				self.statement=self.statement+str("\nreturn  &%s " %ret_statement)
 				self.onestmt="return  &%s" %ret_statement
 				labels=labels+1
 				node1=node(labels,self.onestmt,(labels-1), (labels+1))
 				arr.append(node1)
+				arr[labels].predecessor=arr[labels-1]
+				arr[labels-1].successor=arr[labels]
 				print ("-------------------")
 				print ("Current Label",arr[labels].label)
 				print ("DATA : ",arr[labels].data)
 				print ("Predeccesor Label",arr[labels].pred)
 				print ("Successor Label",arr[labels].succ)
+				print ("Successor ",arr[labels].successor)
+				print ("Predecessor ",arr[labels].predecessor)
 				print ("-------------------")
 				self.onestmt=""				
 			except:
@@ -351,6 +379,16 @@ class tree_traversal():
 				print(self.statement)
 				print ("}\n")
 				self.statement=""
+				for i in range(labels):
+					print ("--------------------------------------------------------------------")
+					print ("Current Label",arr[i].label)
+					print ("DATA : ",arr[i].data)
+					print ("Predeccesor Label",arr[i].pred)
+					print ("Successor Label",arr[i].succ)
+					print ("Successor ",arr[i].successor)
+					print ("Predecessor ",arr[i].predecessor)
+					print ("--------------------------------------------------------------------")
+
 				procedure_defination_list=procedure_defination_list.procedure_defination_list_obj
 			except:
 				print("EXCEPT 3")

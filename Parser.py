@@ -340,3 +340,4 @@ with open(arg1, 'r') as myfile:
 result= parser.parse(data)
 
 tree_traversal(result)
+
