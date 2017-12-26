@@ -1,8 +1,12 @@
 var *a,*b;
 main()
 {
+<bb 1>:
 	use(*b);
 	a=b;
+if()
+goto <bb 2>:
+goto <bb 3>:
 	a=&b;
 	a=*b;
 	*a=b;
@@ -10,5 +14,6 @@ main()
 	*a=&b;
 	use(*a);
 	return *a;
+	
 }
 
