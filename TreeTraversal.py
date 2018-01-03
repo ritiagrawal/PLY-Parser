@@ -7,16 +7,22 @@ class node:
 		self.predecessor=list()
 		self.successor=list()
 		#self.datachanges=None
+
+class block:
+	def __init__(self,num,start,end):
+		self.number=num
+		self.start=start
+		self.end=end
 		
 global labels
 labels=0
 
 arr=list()
+bbArray=list()
 
 Head=node(0,0,None, None)
 arr.append(Head)
 #print ("??!!!!!!!!!!!!??????")
-print (arr[0])
 
 class tree_traversal():
 	def ppointer_var_traversal(self,ppointer_variable):
@@ -38,18 +44,10 @@ class tree_traversal():
 						self.onestmt = self.onestmt + '%s' %self.pointers + '%s' %pointer_variable
 						global labels
 						labels=labels+1
-						node1=node(labels,self.onestmt,(labels-1), (labels+1))
+						node1=node(labels,self.onestmt,(), ())
 						arr.append(node1)
 						self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
 						#arr[labels].datachanges = self.onestmt
-						print ("-------------------")
-						print ("Current Label",arr[labels].label)
-						print ("DATA : ",arr[labels].data)
-						print ("Predeccesor Label",arr[labels].pred)
-						print ("Successor Label",arr[labels].succ)
-						print ("Successor ",arr[labels].successor)
-						print ("Predecessor ",arr[labels].predecessor)
-						print ("-------------------")
 						self.onestmt=""
 						self.o_flag=0
 
@@ -78,6 +76,7 @@ class tree_traversal():
 		try:
 			variable = expression_term.variable_obj.name 
 			self.statement = self.statement + variable
+			
 			if(self.onestmt == ""):
 				self.onestmt = self.onestmt + variable
 				self.o_flag=1
@@ -88,19 +87,10 @@ class tree_traversal():
 				labels=labels+1
 				node1=node(labels,self.onestmt,(),())
 				arr.append(node1)
-				#if(TreePass!=1):
-				#	arr[labels].predecessor.append(arr[labels-1])
-				#	arr[labels-1].successor.append(arr[labels])
+				#arr[labels].predecessor.append(arr[labels-1])
+				#arr[labels-1].successor.append(arr[labels])
 				self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
 				#arr[labels].datachanges = self.onestmt
-				print ("-------------------")
-				print ("Current Label",arr[labels].label)
-				print ("DATA : ",arr[labels].data)
-				print ("Predeccesor Label",arr[labels].pred)
-				print ("Successor Label",arr[labels].succ)
-				print ("Successor ",arr[labels].successor)
-				print ("Predecessor ",arr[labels].predecessor)
-				print ("-------------------")
 				self.onestmt=""
 				self.o_flag=0
 				
@@ -115,20 +105,12 @@ class tree_traversal():
 			self.statement = self.statement + " & %s" %addr_var
 			self.onestmt=self.onestmt+" & %s" %addr_var
 			labels=labels+1
-			node1=node(labels,self.onestmt,(labels-1), (labels+1))
+			node1=node(labels,self.onestmt,(), ())
 			arr.append(node1)
 			#arr[labels].predecessor.append(arr[labels-1])
 			#arr[labels-1].successor.append(arr[labels])
 			self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
 			#arr[labels].datachanges = self.onestmt
-			print ("-------------------")
-			print ("Current Label",arr[labels].label)
-			print ("DATA : ",arr[labels].data)
-			print ("Predeccesor Label",arr[labels].pred)
-			print ("Successor Label",arr[labels].succ)
-			print ("Successor ",arr[labels].successor)
-			print ("Predecessor ",arr[labels].predecessor)
-			print ("-------------------")
 			self.onestmt=""
 		except:
 			pass
@@ -154,7 +136,6 @@ class tree_traversal():
 				self.expression_term_traversal(expression_term)
 				self.statement = "%s = " %self.statement
 				self.onestmt= "%s = " %self.onestmt
-
 			except:
 				pass
 			try:
@@ -208,8 +189,14 @@ class tree_traversal():
 		except:
 			pass
 		try:
+			global labels
 			label=statement.label_obj
 			self.label_traversal(label)
+			if(self.TreePass==1):
+				if(len(bbArray)!=0):
+					bbArray[len(bbArray)-1].end=labels
+				bb=block(label.num,labels+1,-1)
+				bbArray.append(bb)
 		except:
 			pass
 		try:
@@ -223,20 +210,12 @@ class tree_traversal():
 			self.onestmt = self.onestmt + str(")")
 			self.statement = self.statement + str(")")
 			labels = labels+1
-			node1= node(labels,self.onestmt,(labels-1), (labels+1))
+			node1= node(labels,self.onestmt,(), ())
 			arr.append(node1)
 			#arr[labels].predecessor.append(arr[labels-1])
 			#arr[labels-1].successor.append(arr[labels])
 			self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
 			#arr[labels].datachanges = self.onestmt
-			print ("-------------------")
-			print ("Current Label",arr[labels].label)
-			print ("DATA : ",arr[labels].data)
-			print ("Predeccesor Label",arr[labels].pred)
-			print ("Successor Label",arr[labels].succ)
-			print ("Successor ",arr[labels].successor)
-			print ("Predecessor ",arr[labels].predecessor)
-			print ("-------------------")
 			self.onestmt=""
 			self.o_flag=0
 		except:
@@ -330,20 +309,12 @@ class tree_traversal():
 				self.onestmt=("return ")
 				self.ppointer_var_traversal(ret_statement)
 				labels=labels+1
-				node1=node(labels,self.onestmt,(labels-1), (labels+1))
+				node1=node(labels,self.onestmt,(), ())
 				arr.append(node1)
 				#arr[labels].predecessor.append(arr[labels-1])
 				#arr[labels-1].successor.append(arr[labels])
 				self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
 				#arr[labels].datachanges = self.onestmt
-				print ("-------------------")
-				print ("Current Label",arr[labels].label)
-				print ("DATA : ",arr[labels].data)
-				print ("Predeccesor Label",arr[labels].pred)
-				print ("Successor Label",arr[labels].succ)
-				print ("Successor ",arr[labels].successor)
-				print ("Predecessor ",arr[labels].predecessor)
-				print ("-------------------")
 			except:
 				pass
 			try:
@@ -351,20 +322,12 @@ class tree_traversal():
 				self.statement=self.statement+str("\nreturn %s " %ret_statement)
 				self.onestmt="return  %s" %ret_statement
 				labels=labels+1
-				node1=node(labels,self.onestmt,(labels-1), (labels+1))
+				node1=node(labels,self.onestmt,(),())
 				arr.append(node1)
 				#arr[labels].predecessor.append(arr[labels-1])
 				#arr[labels-1].successor.append(arr[labels])
 				self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
 				#arr[labels].datachanges = self.onestmt
-				print ("-------------------")
-				print ("Current Label",arr[labels].label)
-				print ("DATA : ",arr[labels].data)
-				print ("Predeccesor Label",arr[labels].pred)
-				print ("Successor Label",arr[labels].succ)
-				print ("Successor ",arr[labels].successor)
-				print ("Predecessor ",arr[labels].predecessor)
-				print ("-------------------")
 				self.onestmt=""
 				
 			except:
@@ -374,37 +337,18 @@ class tree_traversal():
 				self.statement=self.statement+str("\nreturn  &%s " %ret_statement)
 				self.onestmt="return  &%s" %ret_statement
 				labels=labels+1
-				node1=node(labels,self.onestmt,(labels-1), (labels+1))
+				node1=node(labels,self.onestmt,(), ())
 				arr.append(node1)
 				#arr[labels].predecessor.append(arr[labels-1])
 				#arr[labels-1].successor.append(arr[labels])
 				self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
-				#arr[labels].datachanges = self.onestmt
-				print ("-------------------")
-				print ("Current Label",arr[labels].label)
-				print ("DATA : ",arr[labels].data)
-				print ("Predeccesor Label",arr[labels].pred)
-				print ("Successor Label",arr[labels].succ)
-				print ("Successor ",arr[labels].successor)
-				print ("Predecessor ",arr[labels].predecessor)
-				print ("-------------------")
 				self.onestmt=""				
 			except:
-				
 				pass
 			try:
 				print(self.statement)
 				print ("}\n")
 				self.statement=""
-				for i in range(labels):
-					print ("--------------------------------------------------------------------")
-					print ("Current Label",arr[i].label)
-					print ("DATA : ",arr[i].data)
-					print ("Predeccesor Label",arr[i].pred)
-					print ("Successor Label",arr[i].succ)
-					print ("Successor ",arr[i].successor)
-					print ("Predecessor ",arr[i].predecessor)
-					print ("--------------------------------------------------------------------")
 				#for i in range(labels):
 				#	print ("Current Label",arr[i].datachanges)
 
@@ -415,6 +359,7 @@ class tree_traversal():
 			
 
 	def __init__(self,tree):
+		self.TreePass=1
 		self.pointers='*'
 		self.variables='\nvar'
 		self.statement=""
@@ -423,4 +368,19 @@ class tree_traversal():
 		self.var_decl_traversal(tree)
 		self.flag_p=1
 		self.procedure_def_traversal(tree)
+		self.TreePass+=1
+		print("**CGF**")
+		for label in range (len(arr)):
+			print ("-------------------")
+			print ("Current Label",arr[label].label)
+			print ("DATA : ",arr[label].data)
+			print ("Predeccesor Label",arr[label].pred)
+			print ("Successor Label",arr[label].succ)
+			print ("Successor ",arr[label].successor)
+			print ("Predecessor ",arr[label].predecessor)
+			print ("-------------------")
+		
+		print("BB Array\nblock Number\tstart\tend")
+		for bb in range (len(bbArray)):
+			print("\n", bbArray[bb].number, bbArray[bb].start,bbArray[bb].end)
 		self.o_flag=0
