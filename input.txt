@@ -3,15 +3,17 @@ main()
 {
 <bb 1>:
 	use(*b);
-	a=b;
 if()
-goto <bb 2>:
+	goto <bb 2>:
 goto <bb 3>:
 <bb 2>:
+	a=b;
 	a=&b;
+	goto<bb 4>:
+<bb 3>:
 	a=*b;
 	*a=b;
-<bb 3>:
+<bb 4>:
 	*a=*b;
 	*a=&b;
 	use(*a);

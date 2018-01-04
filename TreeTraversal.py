@@ -39,14 +39,24 @@ class tree_traversal():
 					if(self.onestmt == "" or self.use_flag==1):
 						self.onestmt = self.onestmt + '%s' %self.pointers + '%s' %pointer_variable
 						self.o_flag=1
-
 					elif(self.onestmt != "" and self.o_flag==1):
 						self.onestmt = self.onestmt + '%s' %self.pointers + '%s' %pointer_variable
 						global labels
 						labels=labels+1
-						node1=node(labels,self.onestmt,(), ())
-						arr.append(node1)
-						self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
+						if(self.TreePass==1):
+							node1=node(labels,self.onestmt,(), ())
+							arr.append(node1)
+							self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
+						else:
+							if(self.goto_flag!=1):
+								print("Here***",arr[labels].data)
+								if(arr[self.current].label not in arr[labels].pred):
+									arr[labels].pred.append(arr[self.current].label)
+									arr[labels].predecessor.append(arr[self.current])
+								if(arr[labels].label not in arr[self.current].succ):	
+									arr[self.current].succ.append(arr[labels].label)
+									arr[self.current].successor.append(arr[labels])
+								self.current+=1
 						#arr[labels].datachanges = self.onestmt
 						self.onestmt=""
 						self.o_flag=0
@@ -76,7 +86,6 @@ class tree_traversal():
 		try:
 			variable = expression_term.variable_obj.name 
 			self.statement = self.statement + variable
-			
 			if(self.onestmt == ""):
 				self.onestmt = self.onestmt + variable
 				self.o_flag=1
@@ -85,12 +94,23 @@ class tree_traversal():
 				self.onestmt = self.onestmt + variable
 				global labels
 				labels=labels+1
-				node1=node(labels,self.onestmt,(),())
-				arr.append(node1)
-				#arr[labels].predecessor.append(arr[labels-1])
-				#arr[labels-1].successor.append(arr[labels])
-				self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
-				#arr[labels].datachanges = self.onestmt
+				if(self.TreePass==1):
+					node1=node(labels,self.onestmt,(),())
+					arr.append(node1)
+					#arr[labels].predecessor.append(arr[labels-1])
+					#arr[labels-1].successor.append(arr[labels])
+					self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
+					#arr[labels].datachanges = self.onestmt
+				else:
+					if(self.goto_flag!=1):
+						print("Here***",arr[labels].data)
+						if(arr[self.current].label not in arr[labels].pred):
+							arr[labels].pred.append(arr[self.current].label)
+							arr[labels].predecessor.append(arr[self.current])
+						if(arr[labels].label not in arr[self.current].succ):
+							arr[self.current].succ.append(arr[labels].label)
+							arr[self.current].successor.append(arr[labels])
+						self.current+=1
 				self.onestmt=""
 				self.o_flag=0
 				
@@ -104,13 +124,25 @@ class tree_traversal():
 			addr_var=expression_term.addr_variable_obj.variable_obj.name
 			self.statement = self.statement + " & %s" %addr_var
 			self.onestmt=self.onestmt+" & %s" %addr_var
+			global labels
 			labels=labels+1
-			node1=node(labels,self.onestmt,(), ())
-			arr.append(node1)
-			#arr[labels].predecessor.append(arr[labels-1])
-			#arr[labels-1].successor.append(arr[labels])
-			self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
-			#arr[labels].datachanges = self.onestmt
+			if(self.TreePass==1):
+				node1=node(labels,self.onestmt,(), ())
+				arr.append(node1)
+				#arr[labels].predecessor.append(arr[labels-1])
+				#arr[labels-1].successor.append(arr[labels])
+				self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
+				#arr[labels].datachanges = self.onestmt
+			else:
+				if(self.goto_flag!=1):
+					print("Here***",arr[labels].data)
+					if(arr[self.current].label not in arr[labels].pred):
+						arr[labels].pred.append(arr[self.current].label)
+						arr[labels].predecessor.append(arr[self.current])
+					if(arr[labels].label not in arr[self.current].succ):
+						arr[self.current].succ.append(arr[labels].label)
+						arr[self.current].successor.append(arr[labels])
+					self.current+=1
 			self.onestmt=""
 		except:
 			pass
@@ -124,6 +156,14 @@ class tree_traversal():
 	def label_traversal(self,label_obj):
 		label = "<bb "+ str(label_obj.num )+">:"
 		self.statement = self.statement + " %s" %label
+		if(self.TreePass!=1):
+			if(arr[bbArray[label_obj.num-1].start].label not in arr[self.current].succ):
+				arr[self.current].succ.append(arr[bbArray[label_obj.num-1].start].label)
+				arr[self.current].successor.append(arr[bbArray[label_obj.num-1].start])
+			if(arr[self.current].label not in arr[bbArray[label_obj.num-1].start].pred):
+				arr[bbArray[label_obj.num-1].start].predecessor.append(arr[self.current])
+				arr[bbArray[label_obj.num-1].start].pred.append(arr[self.current].label)
+			self.goto_flag=0
 	
 	def statement_traversal(self, statement):
 		self.use_flag=0
@@ -178,14 +218,15 @@ class tree_traversal():
 			cond_goto=statement.cond_goto_obj
 			if_goto = cond_goto.if_goto_obj
 			self.statement = self.statement + str("if ()\n")
-			self.label_traversal(if_goto.label_obj)
 			self.goto_flag=1
+			self.label_traversal(if_goto.label_obj)
+						#make goto_flag=1 when if is detected
 		except:
 			pass
 		try:
 			uncond_goto=statement.uncond_goto_obj
+			self.ungoto_flag=1
 			self.label_traversal(uncond_goto.label_obj)
-			self.goto_flag=1
 		except:
 			pass
 		try:
@@ -210,12 +251,22 @@ class tree_traversal():
 			self.onestmt = self.onestmt + str(")")
 			self.statement = self.statement + str(")")
 			labels = labels+1
-			node1= node(labels,self.onestmt,(), ())
-			arr.append(node1)
-			#arr[labels].predecessor.append(arr[labels-1])
-			#arr[labels-1].successor.append(arr[labels])
-			self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
-			#arr[labels].datachanges = self.onestmt
+			if(self.TreePass==1):
+				node1= node(labels,self.onestmt,(), ())
+				arr.append(node1)
+				#arr[labels].predecessor.append(arr[labels-1])
+				#arr[labels-1].successor.append(arr[labels])
+				self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
+			else:
+				if(self.goto_flag!=1):				
+					print("Here***",arr[labels].data)
+					if(arr[self.current].label not in arr[labels].pred):
+						arr[labels].pred.append(arr[self.current].label)
+						arr[labels].predecessor.append(arr[self.current])
+					if(arr[labels].label not in arr[self.current].succ):	
+						arr[self.current].succ.append(arr[labels].label)
+						arr[self.current].successor.append(arr[labels])
+					self.current+=1
 			self.onestmt=""
 			self.o_flag=0
 		except:
@@ -309,12 +360,23 @@ class tree_traversal():
 				self.onestmt=("return ")
 				self.ppointer_var_traversal(ret_statement)
 				labels=labels+1
-				node1=node(labels,self.onestmt,(), ())
-				arr.append(node1)
-				#arr[labels].predecessor.append(arr[labels-1])
-				#arr[labels-1].successor.append(arr[labels])
-				self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
-				#arr[labels].datachanges = self.onestmt
+				if(self.TreePass==1):
+					node1=node(labels,self.onestmt,(), ())
+					arr.append(node1)
+					#arr[labels].predecessor.append(arr[labels-1])
+					#arr[labels-1].successor.append(arr[labels])
+					self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
+					#arr[labels].datachanges = self.onestmt
+				else:
+					if(self.goto_flag!=1):
+						print("Here***",arr[labels].data)
+						if(arr[self.current].label not in arr[labels].pred):				
+							arr[labels].pred.append(arr[self.current].label)
+							arr[labels].predecessor.append(arr[self.current])
+						if(arr[labels].label not in arr[self.current].succ):										
+							arr[self.current].succ.append(arr[labels].label)
+							arr[self.current].successor.append(arr[labels])
+						self.current+=1
 			except:
 				pass
 			try:
@@ -322,12 +384,23 @@ class tree_traversal():
 				self.statement=self.statement+str("\nreturn %s " %ret_statement)
 				self.onestmt="return  %s" %ret_statement
 				labels=labels+1
-				node1=node(labels,self.onestmt,(),())
-				arr.append(node1)
-				#arr[labels].predecessor.append(arr[labels-1])
-				#arr[labels-1].successor.append(arr[labels])
-				self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
-				#arr[labels].datachanges = self.onestmt
+				if(self.TreePass==1):
+					node1=node(labels,self.onestmt,(),())
+					arr.append(node1)
+					#arr[labels].predecessor.append(arr[labels-1])
+					#arr[labels-1].successor.append(arr[labels])
+					self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
+					#arr[labels].datachanges = self.onestmt
+				else:
+					if(self.goto_flag!=1):
+						print("Here***",arr[labels].data)
+						if(arr[self.current].label not in arr[labels].pred):				
+							arr[labels].pred.append(arr[self.current].label)
+							arr[labels].predecessor.append(arr[self.current])
+						if(arr[labels].label not in arr[self.current].succ):				
+							arr[self.current].succ.append(arr[labels].label)
+							arr[self.current].successor.append(arr[labels])
+						self.current+=1
 				self.onestmt=""
 				
 			except:
@@ -337,11 +410,22 @@ class tree_traversal():
 				self.statement=self.statement+str("\nreturn  &%s " %ret_statement)
 				self.onestmt="return  &%s" %ret_statement
 				labels=labels+1
-				node1=node(labels,self.onestmt,(), ())
-				arr.append(node1)
-				#arr[labels].predecessor.append(arr[labels-1])
-				#arr[labels-1].successor.append(arr[labels])
-				self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
+				if(self.TreePass==1):
+					node1=node(labels,self.onestmt,(), ())
+					arr.append(node1)
+					#arr[labels].predecessor.append(arr[labels-1])
+					#arr[labels-1].successor.append(arr[labels])
+					self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
+				else:
+					if(self.goto_flag!=1):
+						print("Here***",arr[labels].data)
+						if(arr[self.current].label not in arr[labels].pred):				
+							arr[labels].pred.append(arr[self.current].label)
+							arr[labels].predecessor.append(arr[self.current])
+						if(arr[labels].label not in arr[self.current].succ):				
+							arr[self.current].succ.append(arr[labels].label)
+							arr[self.current].successor.append(arr[labels])
+						self.current+=1
 				self.onestmt=""				
 			except:
 				pass
@@ -349,16 +433,13 @@ class tree_traversal():
 				print(self.statement)
 				print ("}\n")
 				self.statement=""
-				#for i in range(labels):
-				#	print ("Current Label",arr[i].datachanges)
-
 				procedure_defination_list=procedure_defination_list.procedure_defination_list_obj
 			except:
 				print("EXCEPT 3")
 				break
-			
 
 	def __init__(self,tree):
+		global labels
 		self.TreePass=1
 		self.pointers='*'
 		self.variables='\nvar'
@@ -369,6 +450,10 @@ class tree_traversal():
 		self.flag_p=1
 		self.procedure_def_traversal(tree)
 		self.TreePass+=1
+		labels=0
+		self.current=0
+		self.procedure_def_traversal(tree)
+		
 		print("**CGF**")
 		for label in range (len(arr)):
 			print ("-------------------")
