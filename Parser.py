@@ -164,10 +164,11 @@ def p_ppointervariable(p):
 		level +=1
 		p[0]=ppointer_var_list(p[2])
 	
+	
 def p_addrvariable(p):
 	'''addr_var : ADDRESS_OP variable'''
 	p[0]=addr_variableclass(p[2])
-		
+	
 def p_exstatlist(p):
 	''' ex_statement_list : empty
 				| statement ex_statement_list  '''
@@ -232,6 +233,7 @@ def p_exprtermaddrvar(p):
 	'''expression_term : addr_var'''
 	p[0]=exp_addr_var(p[1])
 
+
 def p_exprtermconstant(p):
 	'''expression_term : constant '''
 	p[0]=exp_constant(p[1])
@@ -257,7 +259,7 @@ def p_procedurecall(p):
     p[0] = calling_procedure(p[1],p[3])
 	
 def p_var(p):
-	''' variable : NAME'''			
+	''' variable : NAME'''		
 	global varCount
 	global multipleVar
 	varflag=0	
@@ -339,5 +341,5 @@ with open(arg1, 'r') as myfile:
 
 result= parser.parse(data)
 
-tree_traversal(result)
+tree_traversal(symbolTable,result)
 

@@ -1,23 +1,20 @@
-var *a,*b;
+
+var *x,*y,*z,*u;
+var v,w;
 main()
 {
-<bb 1>:
-	use(*b);
-if()
-	goto <bb 2>:
-goto <bb 3>:
 <bb 2>:
-	a=b;
-	a=&b;
-	goto<bb 4>:
+	y=&v;
+	z=&u;
+	x=&w;
+if()
+	goto <bb 3>:
+goto <bb 4>:
 <bb 3>:
-	a=*b;
-	*a=b;
+	*z=x;
+	goto <bb 5>:
 <bb 4>:
-	*a=*b;
-	*a=&b;
-	use(*a);
-	return *a;
-	
+	z=y;
+<bb 5>:
+	use(*u);
 }
-
