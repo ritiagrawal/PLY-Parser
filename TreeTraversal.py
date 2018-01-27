@@ -3,6 +3,8 @@ from MayPointsTo import *
 class node:										#node for CFG
 	def __init__(self,label,data,pred,succ):
 		self.label=label
+		self.leftLevel=0
+		self.rightLevel=0
 		self.leftVar=None
 		self.rightVar=None
 		self.data=data
@@ -10,9 +12,9 @@ class node:										#node for CFG
 		self.succ=list()
 		self.predecessor=list()
 		self.successor=list()
-		self.ain=list()
-		self.aout=list()
-		self.aoutprev=list()
+		self.ain=[]
+		self.aout=[]
+		self.aoutprev=[]
 		self.definition=list()
 		self.kill=list()
 		self.pointee=list()
@@ -44,13 +46,22 @@ class tree_traversal():
 					self.statement = self.statement + '%s' %self.pointers + '%s' %pointer_variable 
 					if(self.onestmt == "" or self.use_flag==1):			
 						self.onestmt = self.onestmt + '%s' %self.pointers + '%s' %pointer_variable	#one_stmt represents current single statement
+						self.leftVar=pointer_variable
+						self.leftLevel=len(self.pointers)
 						self.o_flag=1							#o_flag to represent one_stmt is not empty
 					elif(self.onestmt != "" and self.o_flag==1):		#o_flag to represent the current onestmt
 						self.onestmt = self.onestmt + '%s' %self.pointers + '%s' %pointer_variable
+						self.rightVar=pointer_variable
+						self.rightLevel=len(self.pointers)
+						
 						global labels
 						labels=labels+1
 						if(self.TreePass==1):		#if first tree traversal pass then create and store the cfg node				
 							node1=node(labels,self.onestmt,(), ())
+							node1.leftLevel=self.leftLevel
+							node1.leftVar=self.leftVar
+							node1.rightLevel=self.rightLevel
+							node1.rightVar=self.rightVar
 							arr.append(node1)
 							self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
 						else:						#else restore the data and allocate predecessor and successor
@@ -96,18 +107,21 @@ class tree_traversal():
 			if(self.onestmt == ""):
 				self.onestmt = self.onestmt + variable
 				self.leftVar=self.onestmt
+				self.leftLevel=0
 				self.o_flag=1
 
 			elif(self.onestmt != "" and self.o_flag==1):
 				self.onestmt = self.onestmt + variable
 				self.rightVar=variable
+				self.rightLevel=0
 				global labels
 				labels=labels+1
 				if(self.TreePass==1):
 					node1=node(labels,self.onestmt,(),())
 					node1.leftVar=self.leftVar
 					node1.rightVar=self.rightVar
-					print("--------------''''''''''''''''-----------",node1.leftVar,"[[[[[[[[[",node1.rightVar)
+					node1.leftLevel=self.leftLevel
+					node1.rightLevel=self.rightLevel
 					arr.append(node1)
 					self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
 				else:
@@ -143,12 +157,15 @@ class tree_traversal():
 			self.statement = self.statement + " & %s" %addr_var
 			self.onestmt=self.onestmt+" & %s" %addr_var
 			self.rightVar=addr_var
+			self.rightLevel=-1
 			labels=labels+1
 			if(self.TreePass==1):
 				node1=node(labels,self.onestmt,(), ())		#first tree pass create node with data but empty predecessor and successor			
+				node1.rightLevel=-1
 				node1.leftVar=self.leftVar
+				node1.leftLevel=self.leftLevel
 				node1.rightVar=self.rightVar
-				print("--------------''''''''''''''''-----------",node1.leftVar,"[[[[[[[[[",node1.rightVar)
+				node1.rightLevel=self.rightLevel
 				arr.append(node1)
 				self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
 			else:
@@ -199,7 +216,6 @@ class tree_traversal():
 				self.expression_term_traversal(expression_term)
 				self.statement = "%s = " %self.statement
 				self.onestmt= "%s = " %self.onestmt
-				#print("----------+++++++++++++++++++++---------",self.rhs)
 				self.lhsflag=0
 			except:
 				pass
@@ -209,7 +225,6 @@ class tree_traversal():
 					try:
 						expression_term_obj = arithmetic_term.expression_term_obj
 						self.expression_term_traversal(expression_term_obj)
-						#print("----------+++++++++++++++++++++---------",self.rhs)s
 					except:
 						pass
 			
@@ -225,7 +240,6 @@ class tree_traversal():
 					try:
 						expression_term = arithmetic_term.expression_term_obj
 						self.expression_term_traversal(expression_term)		
-						#print("----------+++++++++++++++++++++---------",self.rhs)				
 					except:
 						pass
 			
@@ -280,6 +294,9 @@ class tree_traversal():
 			labels = labels+1
 			if(self.TreePass==1):
 				node1= node(labels,self.onestmt,(), ())
+				node1.leftVar=self.leftVar
+				node1.leftLevel=self.leftLevel
+				print(node1.leftVar,":",node1.leftLevel)
 				arr.append(node1)
 				self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
 			else:
@@ -471,6 +488,8 @@ class tree_traversal():
 		self.pointers='*'
 		self.leftVar=""
 		self.rightVar=""
+		self.leftLevel=""
+		self.rightLevel=""
 		self.variables='\nvar'			
 		self.statement=""				#to store all the statements in a procedure		
 		self.onestmt=""					#to store complete statement for CFG
