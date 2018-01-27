@@ -1,9 +1,20 @@
 
-var *x,**y,***z,****u;
+var **x,*y,**z,*u;
 var v,w;
 main()
 {
+<bb 1>:
+	y=&v;
+	z=&u;
+	x=&w;
+if()
+	goto <bb 2>:
+goto <bb 3>:
 <bb 2>:
-	**y=x;
-
+	*z=x;
+	goto <bb 4>:
+<bb 3>:
+	z=y;
+<bb 4>:
+	use(*u);
 }

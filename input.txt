@@ -1,5 +1,5 @@
 
-var *x,*y,*z,*u;
+var **x,*y,**z,*u;
 var v,w;
 main()
 {
@@ -11,7 +11,7 @@ if()
 	goto <bb 3>:
 goto <bb 4>:
 <bb 3>:
-	*z=*x;
+	*z=&w;
 	goto <bb 5>:
 <bb 4>:
 	z=y;
