@@ -47,8 +47,17 @@ class variable_declaration_list(ABC):
 	
 class variable_declaration(ABC):
 	pass
+
+class structure_variable(ABC):
+	pass
 	
 class var_list(ABC):
+	pass
+
+class structure_declaration(ABC):
+	pass
+
+class structure_object(ABC):
 	pass
 
 class ex_statement_list(ABC):
@@ -153,6 +162,26 @@ class variable_dec_stat(variable_declaration_list):				# variable_declaration_li
 		self.variable_declaration_obj=variable_declaration_obj
 		
 class var_variable_list(variable_declaration):			# variable_declaration : VAR var_list ';'
+	var_list_obj=var_list()
+	def __init__(self, var_list_obj):
+		self.var_list_obj=var_list_obj
+
+class	structure_variable_grammar(structure_variable):		 # variable_declaration : structure_declaration 
+	structure_declaration_obj=structure_declaration()
+	def __init__(self,structure_declaration_obj):
+		self.structure_declaration_obj=structure_declaration_obj
+	
+
+class structure_declaration_grammar(structure_declaration):	#structure_declaration : 'struct' variable '{' variable_declaration '}' struct_object ';'
+	variable_declaration_list_obj= variable_declaration_list()
+	variable_obj=variable()
+	struct_obj=structure_object()
+	def __init__(self, variable_obj,variable_declaration_list_obj,struct_obj):
+		self.variable_declaration_list_obj=variable_declaration_list_obj
+		self.variable_obj=variable_obj
+		self.struct_obj=struct_obj
+
+class structure_object_grammar(structure_object):		#struct_object : var_list
 	var_list_obj=var_list()
 	def __init__(self, var_list_obj):
 		self.var_list_obj=var_list_obj
@@ -280,6 +309,13 @@ class exp_constant(expression_term):					#expression_term : constant
 	constant_obj=constant()
 	def __init__(self,constant_obj):
 		self.constant_obj= constant_obj
+
+class exp_structure(expression_term):							#expression_term : variable '-' '>' variable
+	variable_pointer_obj=variable()
+	variable_field_obj=variable()
+	def __init__(self,variable_pointer_obj,variable_field_obj):
+		self.variable_pointer_obj=variable_pointer_obj
+		self.variable_field_obj=variable_field_obj
 		
 class exp_procedure_call(expression_term):
 	procedure_call_obj=procedure_call()					#expression_term : procedure_call

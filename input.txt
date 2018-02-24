@@ -1,20 +1,15 @@
+var *x;
+var a;
+struct S
+{
+ var *f;
+} *y;
 
-var **x,*y,**z,*u;
-var v,w;
 main()
 {
-<bb 2>:
-	y=&v;
-	z=&u;
-	x=&w;
-if()
-	goto <bb 3>:
-goto <bb 4>:
-<bb 3>:
-	*z=&w;
-	goto <bb 5>:
-<bb 4>:
-	z=y;
-<bb 5>:
+var *b;
+<bb 1>:
+	y->f = &x;
+	x = y->f;
 	use(*u);
 }

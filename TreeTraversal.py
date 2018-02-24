@@ -4,6 +4,8 @@ class node:										#node for CFG
 	def __init__(self,label,data,pred,succ):
 		self.label=label
 		self.leftLevel=0
+		self.leftField='*'
+		self.rightField='*'
 		self.rightLevel=0
 		self.leftVar=None
 		self.rightVar=None
@@ -48,12 +50,15 @@ class tree_traversal():
 						self.onestmt = self.onestmt + '%s' %self.pointers + '%s' %pointer_variable	#one_stmt represents current single statement
 						self.leftVar=pointer_variable
 						self.leftLevel=len(self.pointers)
+						self.rightField='*'
+						self.leftField='*'
 						self.o_flag=1							#o_flag to represent one_stmt is not empty
 					elif(self.onestmt != "" and (self.o_flag==1 or self.return_flag==0)):		#o_flag to represent the current onestmt
 						self.onestmt = self.onestmt + '%s' %self.pointers + '%s' %pointer_variable
 						self.rightVar=pointer_variable
 						self.rightLevel=len(self.pointers)
-						
+						self.rightField='*'
+						self.leftField='*'
 						global labels
 						labels=labels+1
 						if(self.TreePass==1):		#if first tree traversal pass then create and store the cfg node	
@@ -63,8 +68,9 @@ class tree_traversal():
 							node1.leftVar=self.leftVar
 							node1.rightLevel=self.rightLevel
 							node1.rightVar=self.rightVar
+							node1.rightField=self.rightField
+							node1.leftField=self.leftField
 							arr.append(node1)
-							print("\nPrinting node value : ",node1.data)
 							self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
 						else:						#else restore the data and allocate predecessor and successor
 							if(self.goto_flag!=1):
@@ -103,19 +109,25 @@ class tree_traversal():
 
 	def expression_term_traversal(self, expression_term):		#to traverse expression terms in the 
 		global labels
-		try:													#variable as expression term
-			variable = expression_term.variable_obj.name 
-			self.statement = self.statement + variable
+		try:
+			variable_pointer = expression_term.variable_pointer_obj.name
+			variable_field = expression_term.variable_field_obj.name
+			self.statement = self.statement + variable_pointer + '-' + '>'+variable_field
 			if(self.onestmt == ""):
-				self.onestmt = self.onestmt + variable
+				self.onestmt = self.onestmt + variable_pointer
 				self.leftVar=self.onestmt
-				self.leftLevel=0
+				self.onestmt = self.onestmt + '-' + '>'
+				self.leftLevel=1
 				self.o_flag=1
-
+				self.leftField=variable_field
+				self.onestmt = self.onestmt + self.leftField
 			elif(self.onestmt != "" and self.o_flag==1):
-				self.onestmt = self.onestmt + variable
-				self.rightVar=variable
-				self.rightLevel=0
+				self.onestmt = self.onestmt + variable_pointer
+				self.rightVar=variable_pointer
+				self.onestmt = self.onestmt + '-' + '>'
+				self.rightLevel=1
+				self.rightField=variable_field
+				self.onestmt = self.onestmt + self.rightField
 				global labels
 				labels=labels+1
 				if(self.TreePass==1):
@@ -124,6 +136,53 @@ class tree_traversal():
 					node1.rightVar=self.rightVar
 					node1.leftLevel=self.leftLevel
 					node1.rightLevel=self.rightLevel
+					node1.rightField=self.rightField
+					node1.leftField=self.leftField
+					arr.append(node1)
+					self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
+				else:
+					if(self.goto_flag!=1):
+						if(self.skip!=1):				#skip is used to skip the statement after unconditional goto
+							if(arr[self.current].label not in arr[labels].pred):
+								arr[labels].pred.append(arr[self.current].label)
+								arr[labels].predecessor.append(arr[self.current])
+							if(arr[labels].label not in arr[self.current].succ):
+								arr[self.current].succ.append(arr[labels].label)
+								arr[self.current].successor.append(arr[labels])
+						self.skip=0
+						self.current+=1
+				self.onestmt=""
+				self.o_flag=0
+			
+
+		except:
+			pass
+		try:													#variable as expression term
+			variable = expression_term.variable_obj.name 
+			self.statement = self.statement + variable
+			if(self.onestmt == ""):
+				self.onestmt = self.onestmt + variable
+				self.leftVar=self.onestmt
+				self.leftLevel=0
+				self.o_flag=1
+				self.rightField='*'
+				self.leftField='*'
+
+			elif(self.onestmt != "" and self.o_flag==1):
+				self.onestmt = self.onestmt + variable
+				self.rightVar=variable
+				self.rightLevel=0
+				self.rightField='*'
+				global labels
+				labels=labels+1
+				if(self.TreePass==1):
+					node1=node(labels,self.onestmt,(),())
+					node1.leftVar=self.leftVar
+					node1.rightVar=self.rightVar
+					node1.leftLevel=self.leftLevel
+					node1.rightLevel=self.rightLevel
+					node1.rightField=self.rightField
+					node1.leftField=self.leftField
 					arr.append(node1)
 					self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
 				else:
@@ -152,6 +211,8 @@ class tree_traversal():
 			self.onestmt=self.onestmt+" & %s" %addr_var
 			self.rightVar=addr_var
 			self.rightLevel=-1
+			self.rightField='*'
+			self.leftField='*'
 			labels=labels+1
 			if(self.TreePass==1):
 				node1=node(labels,self.onestmt,(), ())		#first tree pass create node with data but empty predecessor and successor			
@@ -160,6 +221,8 @@ class tree_traversal():
 				node1.leftLevel=self.leftLevel
 				node1.rightVar=self.rightVar
 				node1.rightLevel=self.rightLevel
+				node1.rightField=self.rightField
+				node1.leftField=self.leftField
 				arr.append(node1)
 				self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
 			else:
@@ -182,6 +245,7 @@ class tree_traversal():
 		
 		except:
 			pass
+		
 		
 	def label_traversal(self,label_obj):		#to traverse blocks 
 		label = "<bb "+ str(label_obj.num)+">:"
@@ -292,7 +356,6 @@ class tree_traversal():
 				node1= node(labels,self.onestmt,(), ())
 				node1.leftVar=self.leftVar
 				node1.leftLevel=self.leftLevel
-				print(node1.leftVar,":",node1.leftLevel)
 				arr.append(node1)
 				self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
 			else:
@@ -342,33 +405,96 @@ class tree_traversal():
 		variable_declarations=tree.variable_declarations_obj	
 		variable_declaration_list=variable_declarations.variable_declaration_list_obj
 		while(variable_declaration_list):
-			self.variables='\nvar '
-			var_list=variable_declaration_list.variable_declaration_obj
-			while(var_list):
-				self.pointers='*'
-				try:
-					ppointer_variable = var_list.ppointer_variable_obj
-					self.ppointer_var_traversal(ppointer_variable)
-				except:
-					pass
-					
-				try:
-					self.variables = self.variables + var_list.variable_obj.name						
-				except:
-					pass
-
-				try:	
-					var_list=var_list.var_list_obj
-					self.variables=self.variables + ' '
-				except:
-					break					
-
-				
 			try:
-				print(self.variables)
+				var_list=variable_declaration_list.variable_declaration_obj.var_list_obj
+				self.variables=self.variables +'\nvar '
+				while(var_list):
+					self.pointers='*'
+					try:
+						ppointer_variable = var_list.ppointer_variable_obj
+						self.ppointer_var_traversal(ppointer_variable)
+					except:
+						pass
+					
+					try:
+						self.variables = self.variables + var_list.variable_obj.name						
+					except:
+						pass
+
+					try:	
+						var_list=var_list.var_list_obj
+						self.variables=self.variables + ' '
+					except:
+						break					
+			except:
+				pass
+			try:
+				structure_declaration=variable_declaration_list.variable_declaration_obj.structure_declaration_obj
+				self.variables= self.variables +'\nstruct '
+				self.variables = self.variables + structure_declaration.variable_obj.name
+				self.variables = self.variables + '{\n' 
+				variable_declaration_list_structure=structure_declaration.variable_declaration_list_obj
+				while(variable_declaration_list_structure):
+					try:
+						self.variables = self.variables + '\nvar '
+						var_list=variable_declaration_list_structure.variable_declaration_obj
+						while(var_list):
+							self.pointers='*'
+							try:
+								ppointer_variable = var_list.ppointer_variable_obj
+								self.ppointer_var_traversal(ppointer_variable)
+							except:
+								pass
+				
+							try:
+								self.variables = self.variables + var_list.variable_obj.name						
+							except:
+								pass
+
+							try:	
+								var_list=var_list.var_list_obj
+								self.variables=self.variables + ' '
+							except:
+								break					
+					except:
+						pass
+							
+					
+					try:
+						variable_declaration_list_structure=variable_declaration_list_structure.variable_declaration_list_obj	
+					except:
+						break
+				self.variables = self.variables + '\n}' 
+				var_list=structure_declaration.struct_obj
+				while(var_list):
+					self.pointers='*'
+					try:
+						ppointer_variable = var_list.ppointer_variable_obj
+						self.ppointer_var_traversal(ppointer_variable)
+					except:
+						pass
+		
+					try:
+						self.variables = self.variables + var_list.variable_obj.name						
+					except:
+						pass
+
+					try:	
+						var_list=var_list.var_list_obj
+						self.variables=self.variables + ' '
+					except:
+						break					
+				self.variables = self.variables + ';\n' 
+			except:
+				pass
+			
+
+			try:
 				variable_declaration_list=variable_declaration_list.variable_declaration_list_obj	
+				
 			except:
 				break
+		print(self.variables)
 		
 	def procedure_def_traversal(self,tree):			#to traverse the procedure
 		global labels
@@ -379,7 +505,6 @@ class tree_traversal():
 				self.statement=self.statement +"%s" %procedure_defination.name
 				self.statement=self.statement + str("(")
 			except:
-				print("EXCEPT 1")
 				pass
 			try:
 				def_parameters = procedure_defination_list.procedure_defination_obj.def_parameters_obj
@@ -391,7 +516,6 @@ class tree_traversal():
 				ex_statement_list = procedure_defination_list.procedure_defination_obj.ex_statement_list_obj
 				self.ex_statement_list_traversal(ex_statement_list)
 			except:
-				print("EXCEPT 2")
 				pass
 			try:					#to traverse the return statements
 				ret_statement=procedure_defination_list.procedure_defination_obj.return_stat_obj.ppointer_var_obj
@@ -485,7 +609,6 @@ class tree_traversal():
 				self.statement=""
 				procedure_defination_list=procedure_defination_list.procedure_defination_list_obj
 			except:
-				print("EXCEPT 3")
 				break
 
 	def __init__(self,symbolTable,tree,debugLevel):
@@ -502,7 +625,7 @@ class tree_traversal():
 		self.rightVar=""
 		self.leftLevel=""
 		self.rightLevel=""
-		self.variables='\nvar'			
+		self.variables='\n'			
 		self.statement=""				#to store all the statements in a procedure		
 		self.onestmt=""					#to store complete statement for CFG
 		self.flag_p=0					#to represent traversal of variable declaration part		
@@ -523,8 +646,6 @@ class tree_traversal():
 		arr[labels].succ.append(labels+1)
 		arr[labels].successor.append(endNode)
 		arr.append(endNode)
-		#self.debugLevel=debugLevel
-		#ans=input("Print CFG ?? (1/0)")
 		if(debugLevel!='1'):
 			print("**CGF**")						#Printing CFG
 			for label in range (len(arr)):
@@ -533,8 +654,6 @@ class tree_traversal():
 				print ("DATA : ",arr[label].data)
 				print ("Predeccesor Label",arr[label].pred)
 				print ("Successor Label",arr[label].succ)
-				#print ("Successor ",arr[label].successor)
-				#print ("Predecessor ",arr[label].predecessor)
 				print ("-------------------")
 		self.o_flag=0
 		

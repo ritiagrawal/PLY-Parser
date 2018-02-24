@@ -82,6 +82,20 @@ def p_variable_declarations(p):
 	if len(p)==2:
 		p[0]=variable_declarations_grammar(p[1])
 
+def p_fieldvariabledeclaration_list(p):
+	''' field_variable_declaration_list : empty
+				  | field_variable_declaration field_variable_declaration_list '''
+	if len(p)==3:
+		p[0]=variable_dec_stat(p[2],p[1])
+
+def p_fieldvariabledeclaration(p):
+	''' field_variable_declaration : VAR field_var_list ';'
+				 | structure_declaration '''
+	if len(p)==4:	
+		p[0]=var_variable_list(p[2])
+	else:
+		p[0]=structure_variable_grammar(p[1])
+
 def p_variabledeclarationlist(p):
 	''' variable_declaration_list : empty
 				  | variable_declaration variable_declaration_list '''
@@ -90,9 +104,29 @@ def p_variabledeclarationlist(p):
 						 
 def p_variabledeclaration(p):
 	''' variable_declaration : VAR var_list ';'
-							 '''
-	p[0]=var_variable_list(p[2])
+				 | structure_declaration '''
+	if len(p)==4:	
+		p[0]=var_variable_list(p[2])
+	else:
+		p[0]=structure_variable_grammar(p[1])
 	
+def p_structuredeclaration(p):
+	''' structure_declaration : STRUCT field_variable '{' field_variable_declaration_list '}' struct_object ';' '''
+	p[0]=structure_declaration_grammar(p[2],p[4],p[6])
+
+def p_structobject(p):
+	''' struct_object : var_list '''
+	p[0]=structure_object_grammar(p[1])
+
+def p_fieldvarlistpointer(p):
+	'''field_var_list : field_ppointer_var
+		| field_var_list  ',' field_ppointer_var '''
+
+	if len(p)==2:
+		p[0]=var_list_ppointer(p[1])
+	else:
+		p[0]=var_list_ppointerlist(p[1],p[3])
+
 def p_varlistpointer(p):
 	'''var_list : ppointer_var
 		| var_list  ',' ppointer_var '''
@@ -119,7 +153,7 @@ def p_varlistpointer(p):
 		p[0]=var_list_ppointer(p[1])
 	else:
 		p[0]=var_list_ppointerlist(p[1],p[3])
-		
+
 def p_varlist(p):
 	'''var_list : variable
 	     | var_list ',' variable '''
@@ -146,6 +180,24 @@ def p_varlist(p):
 		p[0]=var_list_variable(p[1])
 	else:
 		p[0]=var_list_variablelist(p[1],p[3])
+
+def p_fieldpointervariable(p):
+	''' field_pointer_variable :  POINTER_OP field_variable''' 
+	p[0]=pointer_op_var(p[2])
+
+def p_fieldppointervariable(p):
+	'''field_ppointer_var : POINTER_OP field_ppointer_var
+			 | field_pointer_variable  '''
+	global interVar
+	global varCount
+	global level
+	if len(p)==2:
+		p[0]=p[1]
+		level+=1
+		p[0]=ppointer_var(p[1])
+	if len(p)==3:
+		level +=1
+		p[0]=ppointer_var_list(p[2])
 
 def p_pointervariable(p):
 	''' pointer_variable :  POINTER_OP variable''' 
@@ -239,6 +291,10 @@ def p_exprtermconstant(p):
 	'''expression_term : constant '''
 	p[0]=exp_constant(p[1])
 
+def p_exptermstructure(p):
+	''' expression_term : variable '-' '>' field_variable '''
+	p[0] = exp_structure(p[1],p[4])
+
 def p_exprtermprocedure(p):
 	'''expression_term : procedure_call'''
 	p[0]=exp_procedure_call(p[1])
@@ -275,6 +331,10 @@ def p_var(p):
 		varCount+=1
 		flag=0
 
+	p[0]=var_name(p[1])
+
+def p_fieldvar(p):
+	''' field_variable : NAME '''
 	p[0]=var_name(p[1])
 
 def p_arr_var(p):

@@ -8,7 +8,8 @@ reserved = {
 	'return' : 'RETURN',
 	'use' : 'USE',
 	'bb' : 'BB',
-	'goto' : 'GOTO'
+	'goto' : 'GOTO',
+	'struct' : 'STRUCT'
 }
 
 tokens = [

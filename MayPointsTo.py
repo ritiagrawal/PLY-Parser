@@ -3,28 +3,29 @@ import string
 class MayPointsTo():
 	def computeKill(self,cfg,i):
 		if(cfg[i].leftLevel==0):
-			for p,v in cfg[i].ain:
+			for p,f,v in cfg[i].ain:
 				if(p==cfg[i].leftVar):
 					if((cfg[i].leftVar,v) not in cfg[i].kill):
-						cfg[i].kill.append((cfg[i].leftVar,v))
+						cfg[i].kill.append((cfg[i].leftVar,f,v))
 		else:
 			count=0
 			pointee=cfg[i].leftVar
 			temp=""
 			for j in range (0,cfg[i].leftLevel):
 				count=0
-				for p,v in cfg[i].ain:
+				for p,f,v in cfg[i].ain:
 					if(p==pointee):
 						temp=v
 						if(j==cfg[i].leftLevel-1):
-							for p,v in cfg[i].ain:
+							for p,f,v in cfg[i].ain:
 								if(p==temp):
 									p1=p
+									f1=f
 									v1=v
 									count=count+1
 							if(count==1):
-								if((p1,v1) not in cfg[i].kill):
-									cfg[i].kill.append((p1,v1))
+								if((p1,f1,v1) not in cfg[i].kill):
+									cfg[i].kill.append((p1,f1,v1))
 				pointee=temp
 			
 						
@@ -33,9 +34,9 @@ class MayPointsTo():
 	def computeAin(self,cfg,i):
 		if(i>=1):
 			for j in (cfg[i].pred):
-				for (p,v) in cfg[j].aout:
-					if((p,v) not in cfg[i].ain):
-						cfg[i].ain.append((p,v))
+				for (p,f,v) in cfg[j].aout:
+					if((p,f,v) not in cfg[i].ain):
+						cfg[i].ain.append((p,f,v))
 			
 	def computeDef(self,cfg,i):
 		
@@ -49,7 +50,7 @@ class MayPointsTo():
 				pointee=cfg[i].leftVar
 				temp=""
 				for j in range (0,cfg[i].leftLevel):
-					for p,v in cfg[i].ain:
+					for p,f,v in cfg[i].ain:
 						if(p==pointee):
 							temp=v
 							if(v not in cfg[i].definition and j==cfg[i].leftLevel-1):
@@ -65,7 +66,7 @@ class MayPointsTo():
 			pointee=cfg[i].rightVar
 			temp=""
 			for j in range (0,cfg[i].rightLevel+1):
-				for p,v in cfg[i].ain:
+				for p,f,v in cfg[i].ain:
 					if(p==pointee):
 						temp=v
 						if(v not in cfg[i].pointee and j==cfg[i].rightLevel):
@@ -75,14 +76,14 @@ class MayPointsTo():
 	
 	def computeAout(self,cfg,i):
 		cfg[i].aout=[]
-		for (a,b) in cfg[i].ain:
-			cfg[i].aout.append((a,b))
-		for p,v in cfg[i].kill:
-			if( (p,v) in cfg[i].aout):
-				cfg[i].aout.remove((p,v))
+		for (a,f,b) in cfg[i].ain:
+			cfg[i].aout.append((a,f,b))
+		for p,f,v in cfg[i].kill:
+			if( (p,f,v) in cfg[i].aout):
+				cfg[i].aout.remove((p,f,v))
 		for p in cfg[i].definition:
 			for v in cfg[i].pointee:
-				cfg[i].aout.append((p,v))
+				cfg[i].aout.append((p,f,v))
 			
 		return 0
 
@@ -104,7 +105,7 @@ class MayPointsTo():
 			print("Aout:",end=" ")
 			i=cfg[len(cfg)-1]
 			for j in range (0,len(i.aout)):
-				print("(",i.aout[j][0],",",i.aout[j][1],")  ",end="")
+				print("(",i.aout[j][0],",",i.aout[j][1],",",i.aout[j][2],")  ",end="")
 			print("\n\n")
 			
 		elif(self.debugLevel=='2'):
@@ -114,11 +115,11 @@ class MayPointsTo():
 				print("Ain:")
 				j=0
 				for j in range (0,len(i.ain)):
-					print("(",i.ain[j][0],",",i.ain[j][1],")  ",end="")
+					print("(",i.ain[j][0],",",i.ain[j][1],",",i.ain[j][2],")  ",end="")
 
 				print("\nAout:")
 				for j in range (0,len(i.aout)):
-					print("(",i.aout[j][0],",",i.aout[j][1],")  ",end="")
+					print("(",i.aout[j][0],",",i.aout[j][1],",",i.aout[j][2],")  ",end="")
 				print("\n\n")
 			
 
@@ -129,7 +130,7 @@ class MayPointsTo():
 				print("Ain:")
 				j=0
 				for j in range (0,len(i.ain)):
-					print("(",i.ain[j][0],",",i.ain[j][1],")  ",end="")
+					print("(",i.ain[j][0],",",i.ain[j][1],",",i.ain[j][2],")  ",end="")
 
 				print ("\n\nDef:",*i.definition,sep='    ')
 
@@ -137,11 +138,11 @@ class MayPointsTo():
 
 				print ("\nKill:")
 				for j in range (0,len(i.kill)):
-					print("(",i.kill[j][0],",",i.kill[j][1],")  ",end="")
+					print("(",i.kill[j][0],",",i.kill[j][1],",",i.kill[j][2],")  ",end="")
 
 				print("\nAout:")
 				for j in range (0,len(i.aout)):
-					print("(",i.aout[j][0],",",i.aout[j][1],")  ",end="")
+					print("(",i.aout[j][0],",",i.aout[j][1],",",i.aout[j][2],")  ",end="")
 				print("\n\n")
 				print("\n\n")
 
@@ -154,14 +155,12 @@ class MayPointsTo():
 			cfg[i].aoutprev=None
 		for i in range (0,len(symbolTable)):
 			if(symbolTable[i].level>=1):
-				self.Relation.append((symbolTable[i].var,'?'))
-				cfg[0].ain.append((symbolTable[i].var,'?'))
+				self.Relation.append((symbolTable[i].var,'*','?'))
+				cfg[0].ain.append((symbolTable[i].var,'*','?'))
 		cfg[0].aout=self.Relation
 		print("\nStart Relation is : ")
 		for i in range (0,len(self.Relation)):
-			print("(",self.Relation[i][0],",",self.Relation[i][1],")  ",end="")
-		#print("(",self.Relation[i][0],",",self.Relation[i][1],")",end="")
-		
+			print("(",self.Relation[i][0],",",self.Relation[i][1],",",self.Relation[i][2],")  ",end="")
 
 		self.FlowAnalysis(cfg)
 
