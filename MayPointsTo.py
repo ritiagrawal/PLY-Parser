@@ -1,3 +1,5 @@
+import string
+
 class MayPointsTo():
 	def computeKill(self,cfg,i):
 		if(cfg[i].leftLevel==0):
@@ -36,19 +38,23 @@ class MayPointsTo():
 						cfg[i].ain.append((p,v))
 			
 	def computeDef(self,cfg,i):
-		if(cfg[i].leftLevel==0):
-			if(cfg[i].leftVar not in cfg[i].definition):	
-				cfg[i].definition.append(cfg[i].leftVar)
+		
+		if(cfg[i].rightVar==None):
+			pass
 		else:
-			pointee=cfg[i].leftVar
-			temp=""
-			for j in range (0,cfg[i].leftLevel):
-				for p,v in cfg[i].ain:
-					if(p==pointee):
-						temp=v
-						if(v not in cfg[i].definition and j==cfg[i].leftLevel-1):
-							cfg[i].definition.append(v)
-				pointee=temp
+			if(cfg[i].leftLevel==0):
+				if(cfg[i].leftVar not in cfg[i].definition):	
+					cfg[i].definition.append(cfg[i].leftVar)
+			else:
+				pointee=cfg[i].leftVar
+				temp=""
+				for j in range (0,cfg[i].leftLevel):
+					for p,v in cfg[i].ain:
+						if(p==pointee):
+							temp=v
+							if(v not in cfg[i].definition and j==cfg[i].leftLevel-1):
+								cfg[i].definition.append(v)
+					pointee=temp
 		 
 
 	def computePointee(self,cfg,i):
@@ -93,20 +99,57 @@ class MayPointsTo():
 				self.computeAout(cfg,i)
 				if(cfg[i].aout!= cfg[i].aoutprev):
 					change=True
-		for i in cfg:
+		ans=0
+		ans=input("\n\nChoose option : \n1. Print last aout\n2. Print only ain aout information\n3. Print ain aout def kill and pointee\n ")
+		if(ans=='1'):
 			print("\n\nMay point-to analysis")
-			print("**********",i.label,"*******")
-			print ("ain:",i.ain)
-			print ("def:",i.definition)
-			print ("pointee:",i.pointee)
-			print ("kill:",i.kill)
-			print ("aout:",i.aout)
+			print("Aout:",end=" ")
+			i=cfg[len(cfg)-1]
+			for j in range (0,len(i.aout)):
+				print("(",i.aout[j][0],",",i.aout[j][1],")  ",end="")
 			print("\n\n")
+			
+		elif(ans=='2'):
+			print("\n\nMay point-to analysis")
+			for i in cfg:
+				print("******  At block no. ",i.label,"*********")
+				print("Ain:")
+				j=0
+				for j in range (0,len(i.ain)):
+					print("(",i.ain[j][0],",",i.ain[j][1],")  ",end="")
+
+				print("\nAout:")
+				for j in range (0,len(i.aout)):
+					print("(",i.aout[j][0],",",i.aout[j][1],")  ",end="")
+				print("\n\n")
+			
+
+		elif(ans=='3'):
+			print("\n\nMay point-to analysis")
+			for i in cfg:
+				print("******  At block no. ",i.label,"*********")
+				print("Ain:")
+				j=0
+				for j in range (0,len(i.ain)):
+					print("(",i.ain[j][0],",",i.ain[j][1],")  ",end="")
+
+				print ("\n\nDef:",*i.definition,sep='    ')
+
+				print ("\nPointee:",*i.pointee,sep='    ')
+
+				print ("\nKill:")
+				for j in range (0,len(i.kill)):
+					print("(",i.kill[j][0],",",i.kill[j][1],")  ",end="")
+
+				print("\nAout:")
+				for j in range (0,len(i.aout)):
+					print("(",i.aout[j][0],",",i.aout[j][1],")  ",end="")
+				print("\n\n")
+				print("\n\n")
 
 
 	def __init__(self,symbolTable,cfg):
 		self.Relation=[]
-		#self.Relation=[('x','b'),('z','?'),('y','a'),('c','?'),('a','s')]
 		for i in range(0,len(cfg)):
 			cfg[i].aout=None
 			cfg[i].aoutprev=None
@@ -117,7 +160,12 @@ class MayPointsTo():
 		#cfg[0].ain=self.Relation
 		cfg[0].aout=self.Relation
 		#cfg[1].ain=cfg[0].aout
-		print(self.Relation)
+		print("\nStart Relation is : ")
+		for i in range (0,len(self.Relation)):
+			print("(",self.Relation[i][0],",",self.Relation[i][1],")  ",end="")
+		#print("(",self.Relation[i][0],",",self.Relation[i][1],")",end="")
+		
+
 		self.FlowAnalysis(cfg)
 
 

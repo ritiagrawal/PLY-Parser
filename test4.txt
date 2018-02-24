@@ -1,0 +1,18 @@
+var a,*b,c;
+
+main()
+{
+<bb 1>:
+	b=&a;
+if()
+	goto <bb 2>:
+goto <bb 3>:
+<bb 2>:
+	use(*b);
+	goto <bb 4>:
+<bb 3>:
+	b=&c;	
+<bb 4>:
+	use(*b);
+
+}

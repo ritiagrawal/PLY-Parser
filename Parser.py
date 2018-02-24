@@ -22,16 +22,16 @@ def p_empty(p):
 def p_program(p):
 	"program : variable_declarations procedure_definition_list"
 	p[0]=program_grammar(p[1],p[2])
-	print ("Sucessfully parsed")
+	print ("..SUCCESSFULLY PARSED...")
 	
 def p_proceduredefn_list(p):
 	''' procedure_definition_list : procedure_definition  procedure_definition_list
 								| empty'''
 	if len(p)==3:
-		print("VarName\tlevel\tscope")
+		print("\n-------------------------\nSYMBOL TABLE\n\nVarName\tlevel\tscope")
 		for i in range(len(symbolTable)):
 			print(symbolTable[i].var,"\t",symbolTable[i].level,"\t",symbolTable[i].scope)    
-
+		print("\n-------------------------\n")
 		p[0]= procedure_defination_list_grammar(p[2],p[1])
 
 		

@@ -49,20 +49,22 @@ class tree_traversal():
 						self.leftVar=pointer_variable
 						self.leftLevel=len(self.pointers)
 						self.o_flag=1							#o_flag to represent one_stmt is not empty
-					elif(self.onestmt != "" and self.o_flag==1):		#o_flag to represent the current onestmt
+					elif(self.onestmt != "" and (self.o_flag==1 or self.return_flag==0)):		#o_flag to represent the current onestmt
 						self.onestmt = self.onestmt + '%s' %self.pointers + '%s' %pointer_variable
 						self.rightVar=pointer_variable
 						self.rightLevel=len(self.pointers)
 						
 						global labels
 						labels=labels+1
-						if(self.TreePass==1):		#if first tree traversal pass then create and store the cfg node				
+						if(self.TreePass==1):		#if first tree traversal pass then create and store the cfg node	
+							self.return_flag=1
 							node1=node(labels,self.onestmt,(), ())
 							node1.leftLevel=self.leftLevel
 							node1.leftVar=self.leftVar
 							node1.rightLevel=self.rightLevel
 							node1.rightVar=self.rightVar
 							arr.append(node1)
+							print("\nPrinting node value : ",node1.data)
 							self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
 						else:						#else restore the data and allocate predecessor and successor
 							if(self.goto_flag!=1):
@@ -146,14 +148,6 @@ class tree_traversal():
 			pass
 		try:									#address variable as expression term
 			addr_var=expression_term.addr_variable_obj.variable_obj.name
-			'''print("***********",addr_var,"/////")
-			for i in range(0,len(self.symbolTable)):
-				if(addr_var == self.symbolTable[i].var):
-					print("====",self.symbolTable[i].level)
-					if(self.lhsflag==1):
-						self.lhs=self.symbolTable[i].level+1
-					else:
-						self.rhs=self.symbolTable[i].level+1'''
 			self.statement = self.statement + " & %s" %addr_var
 			self.onestmt=self.onestmt+" & %s" %addr_var
 			self.rightVar=addr_var
@@ -259,12 +253,14 @@ class tree_traversal():
 			if_goto = cond_goto.if_goto_obj
 			self.statement = self.statement + str("if ()\n")
 			self.goto_flag=1
+			self.statement = self.statement + str("goto")
 			self.label_traversal(if_goto.label_obj)
 		except:
 			pass
 		try:							#to traverse the unconditional goto statements
 			uncond_goto=statement.uncond_goto_obj
 			self.skip=1
+			self.statement = self.statement + str("goto")
 			self.label_traversal(uncond_goto.label_obj)
 		except:
 			pass
@@ -402,20 +398,29 @@ class tree_traversal():
 				self.statement=self.statement+str("\nreturn ");
 				self.onestmt=("return ")
 				self.ppointer_var_traversal(ret_statement)
-				labels=labels+1
+				
 				if(self.TreePass==1):
-					node1=node(labels,self.onestmt,(), ())
-					arr.append(node1)
-					self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
+					labels=labels+1
+					if(self.return_flag==0):
+						
+						node1=node(labels,self.onestmt,(), ())
+						arr.append(node1)
+						self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
+						
 				else:
+
 					if(self.goto_flag!=1):
 						if(self.skip!=1):
-							if(arr[self.current].label not in arr[labels].pred):				
+							if(arr[self.current].label not in arr[labels].pred and arr[labels].label!=self.current):
+												
 								arr[labels].pred.append(arr[self.current].label)
 								arr[labels].predecessor.append(arr[self.current])
-							if(arr[labels].label not in arr[self.current].succ):										
+								
+							if(arr[labels].label not in arr[self.current].succ and arr[labels].label!=self.current):						
+												
 								arr[self.current].succ.append(arr[labels].label)
 								arr[self.current].successor.append(arr[labels])
+								
 						self.skip=0
 						self.current+=1
 			except:
@@ -425,6 +430,7 @@ class tree_traversal():
 				self.statement=self.statement+str("\nreturn %s " %ret_statement)
 				self.onestmt="return  %s" %ret_statement
 				labels=labels+1
+				
 				if(self.TreePass==1):
 					node1=node(labels,self.onestmt,(),())
 					arr.append(node1)
@@ -449,11 +455,14 @@ class tree_traversal():
 				self.statement=self.statement+str("\nreturn  &%s " %ret_statement)
 				self.onestmt="return  &%s" %ret_statement
 				labels=labels+1
+				
 				if(self.TreePass==1):
+					
 					node1=node(labels,self.onestmt,(), ())
 					arr.append(node1)
 					self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
 				else:
+					
 					if(self.goto_flag!=1):
 						if(self.skip!=1):
 							if(arr[self.current].label not in arr[labels].pred):				
@@ -468,8 +477,11 @@ class tree_traversal():
 			except:
 				pass
 			try:
-				print(self.statement)
-				print ("}\n")
+				if(self.TreePass!=1):
+					print("END OF TRAVERSAL")
+				else:
+					print(self.statement)
+					print ("}\n")
 				self.statement=""
 				procedure_defination_list=procedure_defination_list.procedure_defination_list_obj
 			except:
@@ -493,14 +505,17 @@ class tree_traversal():
 		self.variables='\nvar'			
 		self.statement=""				#to store all the statements in a procedure		
 		self.onestmt=""					#to store complete statement for CFG
-		self.flag_p=0					#to represent traversal of variable declaration part
+		self.flag_p=0					#to represent traversal of variable declaration part		
 		self.var_decl_traversal(tree)
 		self.flag_p=1
+		self.return_flag=0
 		self.procedure_def_traversal(tree)
 		self.TreePass+=1				#tree traversal 2
 		labels=0
+		self.return_flag=0
 		self.current=0
 		self.skip=0						#before starting new pass, skip should be initialized to 1
+		self.goto_flag=0
 		self.procedure_def_traversal(tree)
 		endNode=node(labels+1,-1,None,None)			#End Node of CFG
 		endNode.pred.append(labels)
@@ -509,17 +524,20 @@ class tree_traversal():
 		arr[labels].successor.append(endNode)
 		arr.append(endNode)
 		
-		print("**CGF**")						#Printing CFG
-		for label in range (len(arr)):
-			print ("-------------------")
-			print ("Current Label",arr[label].label)
-			print ("DATA : ",arr[label].data)
-			print ("Predeccesor Label",arr[label].pred)
-			print ("Successor Label",arr[label].succ)
-			#print ("Successor ",arr[label].successor)
-			#print ("Predecessor ",arr[label].predecessor)
-			print ("-------------------")
-		
+		ans=input("Print CFG ?? (1/0)")
+		if(ans=='1'):
+			print("**CGF**")						#Printing CFG
+			for label in range (len(arr)):
+				print ("-------------------")
+				print ("Current Label",arr[label].label)
+				print ("DATA : ",arr[label].data)
+				print ("Predeccesor Label",arr[label].pred)
+				print ("Successor Label",arr[label].succ)
+				#print ("Successor ",arr[label].successor)
+				#print ("Predecessor ",arr[label].predecessor)
+				print ("-------------------")
+		elif(ans!='1'):
+			print("-----------------------------------------------------------------\n")
 		'''print("BB Array\nblock Number\tstart\tend")		#Printing stored data of per block
 		for bb in range (len(bbArray)):
 			print("\n", bbArray[bb].number, bbArray[bb].start,bbArray[bb].end)'''

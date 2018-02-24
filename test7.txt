@@ -1,0 +1,9 @@
+var *b;
+var a,c;
+
+main()
+{
+<bb 1>:
+	b=&a;	
+	return *b;
+}

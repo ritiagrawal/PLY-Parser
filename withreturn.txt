@@ -1,0 +1,10 @@
+
+var **x,*y,**z,*u;
+var v,w;
+main()
+{
+<bb 1>:
+	y=&v;
+	z=&u;
+	x=&w;
+}

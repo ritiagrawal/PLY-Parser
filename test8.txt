@@ -1,0 +1,23 @@
+var a,b;
+var *x,**y,**z,*w,*v;
+
+main()
+{
+<bb 1>:
+	x=&a;
+	y=&w;
+	*y=x;
+if()
+	goto <bb 2>:
+goto <bb 3>:
+
+<bb 2>:
+	z=&v;
+	*z=*y;
+	goto <bb 4>:
+<bb 3>:
+	z=&b;
+<bb 4>:
+	return *x;
+
+}
