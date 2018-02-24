@@ -488,7 +488,7 @@ class tree_traversal():
 				print("EXCEPT 3")
 				break
 
-	def __init__(self,symbolTable,tree):
+	def __init__(self,symbolTable,tree,debugLevel):
 		global labels
 		self.lhs=0
 		self.lhsflag=0
@@ -523,9 +523,9 @@ class tree_traversal():
 		arr[labels].succ.append(labels+1)
 		arr[labels].successor.append(endNode)
 		arr.append(endNode)
-		
-		ans=input("Print CFG ?? (1/0)")
-		if(ans=='1'):
+		#self.debugLevel=debugLevel
+		#ans=input("Print CFG ?? (1/0)")
+		if(debugLevel!='1'):
 			print("**CGF**")						#Printing CFG
 			for label in range (len(arr)):
 				print ("-------------------")
@@ -536,11 +536,6 @@ class tree_traversal():
 				#print ("Successor ",arr[label].successor)
 				#print ("Predecessor ",arr[label].predecessor)
 				print ("-------------------")
-		elif(ans!='1'):
-			print("-----------------------------------------------------------------\n")
-		'''print("BB Array\nblock Number\tstart\tend")		#Printing stored data of per block
-		for bb in range (len(bbArray)):
-			print("\n", bbArray[bb].number, bbArray[bb].start,bbArray[bb].end)'''
 		self.o_flag=0
 		
-		MayPointsTo(symbolTable,arr)
+		MayPointsTo(symbolTable,arr,debugLevel)

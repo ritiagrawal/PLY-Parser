@@ -99,9 +99,7 @@ class MayPointsTo():
 				self.computeAout(cfg,i)
 				if(cfg[i].aout!= cfg[i].aoutprev):
 					change=True
-		ans=0
-		ans=input("\n\nChoose option : \n1. Print last aout\n2. Print only ain aout information\n3. Print ain aout def kill and pointee\n ")
-		if(ans=='1'):
+		if(self.debugLevel=='1'):
 			print("\n\nMay point-to analysis")
 			print("Aout:",end=" ")
 			i=cfg[len(cfg)-1]
@@ -109,7 +107,7 @@ class MayPointsTo():
 				print("(",i.aout[j][0],",",i.aout[j][1],")  ",end="")
 			print("\n\n")
 			
-		elif(ans=='2'):
+		elif(self.debugLevel=='2'):
 			print("\n\nMay point-to analysis")
 			for i in cfg:
 				print("******  At block no. ",i.label,"*********")
@@ -124,7 +122,7 @@ class MayPointsTo():
 				print("\n\n")
 			
 
-		elif(ans=='3'):
+		elif(self.debugLevel=='3'):
 			print("\n\nMay point-to analysis")
 			for i in cfg:
 				print("******  At block no. ",i.label,"*********")
@@ -148,7 +146,8 @@ class MayPointsTo():
 				print("\n\n")
 
 
-	def __init__(self,symbolTable,cfg):
+	def __init__(self,symbolTable,cfg,debugLevel):
+		self.debugLevel=debugLevel
 		self.Relation=[]
 		for i in range(0,len(cfg)):
 			cfg[i].aout=None
@@ -157,9 +156,7 @@ class MayPointsTo():
 			if(symbolTable[i].level>=1):
 				self.Relation.append((symbolTable[i].var,'?'))
 				cfg[0].ain.append((symbolTable[i].var,'?'))
-		#cfg[0].ain=self.Relation
 		cfg[0].aout=self.Relation
-		#cfg[1].ain=cfg[0].aout
 		print("\nStart Relation is : ")
 		for i in range (0,len(self.Relation)):
 			print("(",self.Relation[i][0],",",self.Relation[i][1],")  ",end="")
