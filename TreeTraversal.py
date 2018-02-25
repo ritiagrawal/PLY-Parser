@@ -44,6 +44,14 @@ class tree_traversal():
 				pointer_variable = ppointer_variable.pointer_variable_obj.variable_obj.name
 				if self.flag_p==0:									#if pointer variable appears in var declaration
 					self.variables = self.variables + '%s' %self.pointers + '%s' %pointer_variable 
+					if(self.struct_flag==0):
+						self.symbolTable1.append(((pointer_variable,'*'),len(self.pointers)))
+					else:
+						if(self.object_flag==0):
+							self.fields.append((pointer_variable,len(self.pointers)))
+						else:
+							self.objects.append((pointer_variable,len(self.pointers)))
+						
 				else:								#if pointer variable in statement
 					self.statement = self.statement + '%s' %self.pointers + '%s' %pointer_variable 
 					if(self.onestmt == "" or self.use_flag==1):			
@@ -417,7 +425,8 @@ class tree_traversal():
 						pass
 					
 					try:
-						self.variables = self.variables + var_list.variable_obj.name						
+						self.variables = self.variables + var_list.variable_obj.name	
+						self.symbolTable1.append(((var_list.variable_obj.name,'*'),0))					
 					except:
 						pass
 
@@ -431,6 +440,7 @@ class tree_traversal():
 			try:
 				structure_declaration=variable_declaration_list.variable_declaration_obj.structure_declaration_obj
 				self.variables= self.variables +'\nstruct '
+				self.struct_flag=1
 				self.variables = self.variables + structure_declaration.variable_obj.name
 				self.variables = self.variables + '{\n' 
 				variable_declaration_list_structure=structure_declaration.variable_declaration_list_obj
@@ -447,7 +457,8 @@ class tree_traversal():
 								pass
 				
 							try:
-								self.variables = self.variables + var_list.variable_obj.name						
+								self.variables = self.variables + var_list.variable_obj.name	
+								self.fields.append((var_list.variable_obj.name,0))					
 							except:
 								pass
 
@@ -466,6 +477,7 @@ class tree_traversal():
 						break
 				self.variables = self.variables + '\n}' 
 				var_list=structure_declaration.struct_obj
+				self.object_flag=1
 				while(var_list):
 					self.pointers='*'
 					try:
@@ -475,7 +487,9 @@ class tree_traversal():
 						pass
 		
 					try:
-						self.variables = self.variables + var_list.variable_obj.name						
+						self.variables = self.variables + var_list.variable_obj.name			
+						self.objects.append((var_list.variable_obj.name,0))		
+					
 					except:
 						pass
 
@@ -484,7 +498,17 @@ class tree_traversal():
 						self.variables=self.variables + ' '
 					except:
 						break					
-				self.variables = self.variables + ';\n' 
+				self.variables = self.variables + ';\n'
+				self.object_flag=0
+				self.struct_flag=0 
+				for o in self.objects:
+					for f in self.fields:
+						if(o[1]>=1):
+							self.symbolTable1.append(((o[0],'*'),o[1]+f[1]))
+						else:
+							self.symbolTable1.append(((o[0],f[0]),o[1]+f[1]))
+				self.fields=[]
+				self.objects=[]
 			except:
 				pass
 			
@@ -611,12 +635,16 @@ class tree_traversal():
 			except:
 				break
 
-	def __init__(self,symbolTable,tree,debugLevel):
+	def __init__(self,tree,debugLevel):
 		global labels
+		self.symbolTable1=[]
+		self.struct_flag=0
+		self.fields=[]
+		self.object_flag=0
+		self.objects=[]
 		self.lhs=0
 		self.lhsflag=0
 		self.rhs=0
-		self.symbolTable=symbolTable
 		self.skip=0						#to skip the statement after unconditional goto
 		self.bb_skip=0					#to represent block
 		self.TreePass=1					#Tree traversal pass number
@@ -646,6 +674,10 @@ class tree_traversal():
 		arr[labels].succ.append(labels+1)
 		arr[labels].successor.append(endNode)
 		arr.append(endNode)
+		print("------------SYMBOL TABLE-------------\n")
+		print("Variable tuple","\t","Level")
+		for i in range(0,len(self.symbolTable1)):
+				print(self.symbolTable1[i][0],"\t",self.symbolTable1[i][1])
 		if(debugLevel!='1'):
 			print("**CGF**")						#Printing CFG
 			for label in range (len(arr)):
@@ -657,4 +689,4 @@ class tree_traversal():
 				print ("-------------------")
 		self.o_flag=0
 		
-		MayPointsTo(symbolTable,arr,debugLevel)
+		MayPointsTo(self.symbolTable1,arr,debugLevel)

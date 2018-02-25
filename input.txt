@@ -1,15 +1,10 @@
-var *x;
-var a;
-struct S
-{
- var *f;
-} *y;
+var *b,**x,**y,*u;
+var a,c;
 
 main()
 {
-var *b;
 <bb 1>:
-	y->f = &x;
-	x = y->f;
-	use(*u);
+	b=&u;
+	u=&a;	
+	use(*b);
 }
