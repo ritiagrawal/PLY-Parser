@@ -7,4 +7,5 @@ main()
 	b=&u;
 	u=&a;	
 	use(*b);
+	return *b;
 }
