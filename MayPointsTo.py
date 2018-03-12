@@ -147,26 +147,19 @@ class MayPointsTo():
 			change=False
 			for i in range(0,len(cfg)):
 				self.computeAin(cfg,i)
-				#if(cfg[i].data[0-2]=="use" or cfg[i].data[1-3]=="ret"):
-				self.computeDef(cfg,i)
-				self.computeKill(cfg,i)
-				self.computePointee(cfg,i)
 				if(i!=0 and i!= len(cfg)-1):
 					check=cfg[i].data
 					if((re.search('^use',check) or re.search('^return',check))):
 						cfg[i].definition=[]
 						cfg[i].kill=[]
-						cfg[i].pointee=[]	
+						cfg[i].pointee=[]
+					else:
+						self.computeDef(cfg,i)
+						self.computeKill(cfg,i)
+						self.computePointee(cfg,i)
+							
 				cfg[i].aoutprev=cfg[i].aout
 				self.computeAout(cfg,i)
-				'''print("\nDefinition")
-				for j in range (0,len(cfg[i].definition)):
-					print("(",cfg[i].definition[j].variable,",",cfg[i].definition[j].field,") ",end="")
-
-				print ("\nPointee:")
-				for j in range (0,len(cfg[i].pointee)):
-					print(cfg[i].pointee[j].variable,",",end="")'''
-
 				if(cfg[i].aout!= cfg[i].aoutprev):
 					change=True
 		if(self.debugLevel=='1'):
