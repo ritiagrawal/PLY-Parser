@@ -200,7 +200,7 @@ class MayPointsTo():
 
 				print ("\nPointee:")
 				for j in range (0,len(i.pointee)):
-					print(i.pointee[j].variable,",",end="")
+					print(i.pointee[j].variable,end="")
 
 				print ("\nKill:")
 				for j in range (0,len(i.kill)):
@@ -221,8 +221,6 @@ class MayPointsTo():
 		for i in range(0,len(cfg)):
 			cfg[i].aout=None
 			cfg[i].aoutprev=None
-			#for i in range(0,len(self.symbolTable1)):
-			#	print(self.symbolTable1[i][0],"\t",self.symbolTable1[i][1])
 		for i in range (0,len(symbolTable)):
 			if(symbolTable[i][1]>=1):
 				self.pointer=pointer(symbolTable[i][0][0],symbolTable[i][0][1])

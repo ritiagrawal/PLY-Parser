@@ -45,7 +45,7 @@ class tree_traversal():
 				if self.flag_p==0:									#if pointer variable appears in var declaration
 					self.variables = self.variables + '%s' %self.pointers + '%s' %pointer_variable 
 					if(self.struct_flag==0):
-						self.symbolTable1.append(((pointer_variable,'*'),len(self.pointers)))
+						self.symbolTable1.append(((pointer_variable,'*'),len(self.pointers),"var"))
 					else:
 						if(self.object_flag==0):
 							self.fields.append((pointer_variable,len(self.pointers)))
@@ -426,7 +426,7 @@ class tree_traversal():
 					
 					try:
 						self.variables = self.variables + var_list.variable_obj.name	
-						self.symbolTable1.append(((var_list.variable_obj.name,'*'),0))					
+						self.symbolTable1.append(((var_list.variable_obj.name,'*'),0,"var"))					
 					except:
 						pass
 
@@ -504,9 +504,9 @@ class tree_traversal():
 				for o in self.objects:
 					for f in self.fields:
 						if(o[1]>=1):
-							self.symbolTable1.append(((o[0],'*'),o[1]+f[1]))
+							self.symbolTable1.append(((o[0],'*'),o[1],structure_declaration.variable_obj.name))
 						else:
-							self.symbolTable1.append(((o[0],f[0]),o[1]+f[1]))
+							self.symbolTable1.append(((o[0],f[0]),o[1],structure_declaration.variable_obj.name))
 				self.fields=[]
 				self.objects=[]
 			except:
@@ -675,9 +675,9 @@ class tree_traversal():
 		arr[labels].successor.append(endNode)
 		arr.append(endNode)
 		print("------------SYMBOL TABLE-------------\n")
-		print("Variable tuple","\t","Level")
+		print("Variable tuple","\t","Level","\t","Type")
 		for i in range(0,len(self.symbolTable1)):
-				print(self.symbolTable1[i][0],"\t",self.symbolTable1[i][1])
+				print(self.symbolTable1[i][0],"\t",self.symbolTable1[i][1],"\t",self.symbolTable1[i][2])
 		if(debugLevel!='1'):
 			print("**CGF**")						#Printing CFG
 			for label in range (len(arr)):

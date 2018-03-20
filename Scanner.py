@@ -18,6 +18,7 @@ tokens = [
     'ASSIGN_OP',
     'ADDRESS_OP',
     'POINTER_OP',
+    'STR_OP',
 ] + list(reserved.values())
 
 def t_COMMENT(t):
@@ -36,6 +37,7 @@ literals = ['(',')','{','}', ',' , ';','-','+', ':', '?','<' ,'>' , '[' , ']' ]
 t_ASSIGN_OP = r'\='
 t_ADDRESS_OP = r'\&'
 t_POINTER_OP=r'\*'
+t_STR_OP=r'\->'
 
 def t_NUM(t):
     r'\d+'

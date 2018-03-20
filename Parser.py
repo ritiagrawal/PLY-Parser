@@ -9,8 +9,10 @@ from astgenerator import *
 from TreeTraversal import *
 
 precedence = (
-	('left', '+', '-'),
+	('left', '+', '-'), 
+	('left','STR_OP')
 )
+
 #defines the starting grammar rule (top level rule)
 start = 'program'
 
@@ -204,12 +206,12 @@ def p_arithexpr(p):
     		
 
 def p_exprtermvar(p):
-	'''expression_term : variable
-			    | variable '-' '>' variable '''
+	'''expression_term : variable 
+			    | variable STR_OP variable  ''' 
 	if(len(p)==2):	
 		p[0]=exp_var(p[1])
 	else:
-		p[0] = exp_structure(p[1],p[4])	
+		p[0] = exp_structure(p[1],p[3])	
 
 def p_exprtermpointervar(p):
 	'''expression_term : ppointer_var'''
