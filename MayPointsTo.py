@@ -89,11 +89,6 @@ class MayPointsTo():
 											pointerVar=pointer(v.variable,cfg[i].rightField)
 											cfg[i].definition.append(pointerVar)
 					temp_pointer=temp
-					'''####
-							print("=================",(v.variable,cfg[i].leftField),"\t\t",cfg[i].definition)
-							if((v.variable,cfg[i].leftField) not in cfg[i].definition and j==cfg[i].leftLevel-1):
-								pointerVar=pointer(v.variable,cfg[i].leftField)
-								cfg[i].definition.append(pointerVar)'''
 
 		 
 
@@ -231,6 +226,6 @@ class MayPointsTo():
 		print("\nStart Relation is : ")
 		for i in range (0,len(self.Relation)):
 			print("((",self.Relation[i][0].variable,",",self.Relation[i][0].field,"),",self.Relation[i][1].variable,")  ",end="")
-
+		
 		self.FlowAnalysis(cfg)
 

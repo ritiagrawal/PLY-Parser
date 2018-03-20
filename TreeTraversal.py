@@ -65,8 +65,6 @@ class tree_traversal():
 						self.onestmt = self.onestmt + '%s' %self.pointers + '%s' %pointer_variable
 						self.rightVar=pointer_variable
 						self.rightLevel=len(self.pointers)
-						self.rightField='*'
-						self.leftField='*'
 						global labels
 						labels=labels+1
 						if(self.TreePass==1):		#if first tree traversal pass then create and store the cfg node	
@@ -79,6 +77,8 @@ class tree_traversal():
 							node1.rightField=self.rightField
 							node1.leftField=self.leftField
 							arr.append(node1)
+							self.rightField='*'
+							self.leftField='*'
 							self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
 						else:						#else restore the data and allocate predecessor and successor
 							if(self.goto_flag!=1):
@@ -135,7 +135,7 @@ class tree_traversal():
 				self.onestmt = self.onestmt + '-' + '>'
 				self.rightLevel=1
 				self.rightField=variable_field
-				self.onestmt = self.onestmt + self.rightField
+				self.onestmt = self.onestmt + self.rightField				
 				global labels
 				labels=labels+1
 				if(self.TreePass==1):
@@ -147,6 +147,8 @@ class tree_traversal():
 					node1.rightField=self.rightField
 					node1.leftField=self.leftField
 					arr.append(node1)
+					self.rightField='*'
+					self.leftField='*'
 					self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
 				else:
 					if(self.goto_flag!=1):
@@ -180,7 +182,6 @@ class tree_traversal():
 				self.onestmt = self.onestmt + variable
 				self.rightVar=variable
 				self.rightLevel=0
-				self.rightField='*'
 				global labels
 				labels=labels+1
 				if(self.TreePass==1):
@@ -192,6 +193,8 @@ class tree_traversal():
 					node1.rightField=self.rightField
 					node1.leftField=self.leftField
 					arr.append(node1)
+					self.rightField='*'
+					self.leftField='*'
 					self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
 				else:
 					if(self.goto_flag!=1):
@@ -219,8 +222,6 @@ class tree_traversal():
 			self.onestmt=self.onestmt+" & %s" %addr_var
 			self.rightVar=addr_var
 			self.rightLevel=-1
-			self.rightField='*'
-			self.leftField='*'
 			labels=labels+1
 			if(self.TreePass==1):
 				node1=node(labels,self.onestmt,(), ())		#first tree pass create node with data but empty predecessor and successor			
@@ -232,6 +233,8 @@ class tree_traversal():
 				node1.rightField=self.rightField
 				node1.leftField=self.leftField
 				arr.append(node1)
+				self.rightField='*'
+				self.leftField='*'
 				self.onestmt = self.onestmt + '\ngoto <%s>' %(labels+1)+ '\n%s :' %(labels+1)
 			else:
 				if(self.goto_flag!=1):					#if prev statement is not a goto statement
@@ -501,12 +504,21 @@ class tree_traversal():
 				self.variables = self.variables + ';\n'
 				self.object_flag=0
 				self.struct_flag=0 
+				
+				#reason of errror
 				for o in self.objects:
+					for f in self.fields:
+						if(o[1]==0	):
+							self.symbolTable1.append(((o[0],f[0]),o[1]+f[1],"var"))
+					self.symbolTable1.append(((o[0],'*'),o[1],structure_declaration.variable_obj.name))
+	
+				'''for o in self.objects:
 					for f in self.fields:
 						if(o[1]>=1):
 							self.symbolTable1.append(((o[0],'*'),o[1],structure_declaration.variable_obj.name))
 						else:
-							self.symbolTable1.append(((o[0],f[0]),o[1],structure_declaration.variable_obj.name))
+							self.symbolTable1.append(((o[0],'*'),o[1],structure_declaration.variable_obj.name))
+							self.symbolTable1.append(((o[0],f[0]),o[1]+f[1],"var"))'''
 				self.fields=[]
 				self.objects=[]
 			except:
@@ -686,6 +698,8 @@ class tree_traversal():
 				print ("DATA : ",arr[label].data)
 				print ("Predeccesor Label",arr[label].pred)
 				print ("Successor Label",arr[label].succ)
+				print ("Left field: ", arr[label].leftField)
+				print ("Right field",arr[label].rightField)
 				print ("-------------------")
 		self.o_flag=0
 		

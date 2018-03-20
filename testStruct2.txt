@@ -3,11 +3,6 @@ struct S
    var *f;
 }*y,p;
 
-struct S1
-{
-   var *f1;
-}*w,x;
-
 var a,*b,c;
 
 main()
@@ -15,7 +10,7 @@ main()
 	<bb 1> :
 		b=&a;
 		y=&p;
-		y -> f = &a;
+		y -> f = b;
 		b=y -> f;
 		b=&c;
 		use(*b);
