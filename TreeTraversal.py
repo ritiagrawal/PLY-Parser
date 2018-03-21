@@ -182,7 +182,6 @@ class tree_traversal():
 				self.onestmt = self.onestmt + variable
 				self.rightVar=variable
 				self.rightLevel=0
-				global labels
 				labels=labels+1
 				if(self.TreePass==1):
 					node1=node(labels,self.onestmt,(),())
@@ -700,6 +699,8 @@ class tree_traversal():
 				print ("Successor Label",arr[label].succ)
 				print ("Left field: ", arr[label].leftField)
 				print ("Right field",arr[label].rightField)
+				print ("Left level: ",arr[label].leftLevel)
+				print ("Right level", arr[label].rightLevel)
 				print ("-------------------")
 		self.o_flag=0
 		

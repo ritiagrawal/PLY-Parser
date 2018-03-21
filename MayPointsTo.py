@@ -30,6 +30,7 @@ class MayPointsTo():
 		else:
 			count=0
 			temp_pointee=cfg[i].leftVar
+			temp_field= cfg[i].leftField
 			temp=""
 			p1=pointer(None,None)
 			v1=pointee(None)
@@ -40,7 +41,7 @@ class MayPointsTo():
 						temp=v.variable
 						if(j==cfg[i].leftLevel-1):
 							for (p2,v2) in cfg[i].ain:
-								if(p2.variable==temp):
+								if(p2.variable==temp and p2.field==temp_field):
 									p1=p2
 									v1=v2
 									count=count+1
@@ -83,11 +84,13 @@ class MayPointsTo():
 								if(len(cfg[i].definition)==0):
 									pointerVar=pointer(v.variable,cfg[i].leftField)
 									cfg[i].definition.append(pointerVar)
+
 								else:
 									for defVar in cfg[i].definition:
 										if(v.variable != defVar.variable and cfg[i].leftField != defVar.field):
 											pointerVar=pointer(v.variable,cfg[i].rightField)
 											cfg[i].definition.append(pointerVar)
+
 					temp_pointer=temp
 
 		 
@@ -104,20 +107,22 @@ class MayPointsTo():
 						cfg[i].pointee.append(pointeeVar)
 		else:
 			temp_pointee=cfg[i].rightVar
+			temp_field=cfg[i].rightField
 			temp=""
 			for j in range (0,cfg[i].rightLevel+1):
 				for (p,v) in cfg[i].ain:
 					if(p.variable==temp_pointee):
 						temp=v.variable
 						if(j==cfg[i].rightLevel):
-							if (len(cfg[i].pointee) ==0):		
-								pointeeVar=pointee(v.variable)
-								cfg[i].pointee.append(pointeeVar)
-							else:
-								for var in cfg[i].pointee:
-									if(v.variable != var.variable):
-										pointeeVar=pointee(v.variable)
-										cfg[i].pointee.append(pointeeVar)
+							if(temp_field==p.field):
+								if (len(cfg[i].pointee) ==0):		
+									pointeeVar=pointee(v.variable)
+									cfg[i].pointee.append(pointeeVar)
+								else:
+									for var in cfg[i].pointee:
+										if(v.variable != var.variable):
+											pointeeVar=pointee(v.variable)
+											cfg[i].pointee.append(pointeeVar)
 				temp_pointee=temp
 
 	
