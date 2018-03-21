@@ -136,8 +136,18 @@ class MayPointsTo():
 					cfg[i].aout.remove((p1,v1))
 		for p in cfg[i].definition:
 			for v in cfg[i].pointee:
-				cfg[i].aout.append((p,v))
-			
+				k=0
+				j=0
+				for k in range(0, len(self.symbolTable)):
+					if(((p.variable , p.field)) == self.symbolTable[k][0]):						
+						break						
+				for j in range(0, len(self.symbolTable)):
+					if(((v.variable , '*')) == self.symbolTable[j][0]):
+						break
+				if(self.symbolTable[k][2] == self.symbolTable[j][2] and self.symbolTable[k][1] == self.symbolTable[j][1]+1):
+					cfg[i].aout.append((p,v))
+				else:
+					print("Type mismatch error")
 		return 0
 
 	def FlowAnalysis(self,cfg):
@@ -218,6 +228,7 @@ class MayPointsTo():
 		self.Relation=[]
 		self.pointer=""
 		self.pointee=""
+		self.symbolTable=symbolTable
 		for i in range(0,len(cfg)):
 			cfg[i].aout=None
 			cfg[i].aoutprev=None

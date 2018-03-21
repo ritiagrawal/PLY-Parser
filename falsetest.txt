@@ -1,0 +1,17 @@
+struct S
+{
+   var *f;
+   var *k;
+}*y,p;
+
+var a,*b;
+
+main()
+{
+	<bb 1> :
+		y=&a;
+		y -> f = &a;
+		b=y->f;
+		use(*b);
+
+}
