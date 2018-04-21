@@ -1,7 +1,9 @@
 import ply.yacc as yacc
 import sys
-arg1 = sys.argv[1]        # For taking input from command line.
-debugLevel = sys.argv[2]
+
+pta = sys.argv[1]
+arg1 = sys.argv[2]        # For taking input from command line.
+debugLevel = sys.argv[3]
 
 # Get the token map from the lexer.  This is required.
 from Scanner import tokens
@@ -331,5 +333,5 @@ with open(arg1, 'r') as myfile:
 
 result= parser.parse(data)
 
-tree_traversal(result,debugLevel)		#to traverse the parse tree generated
+tree_traversal(result,debugLevel,pta)		#to traverse the parse tree generated
 

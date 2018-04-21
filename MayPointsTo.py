@@ -1,40 +1,40 @@
 import string
 import re
-class pointer():
+class pointer():				#format of the pointer part in Pointer=pointee statement
 	def __init__(self,variable, field):
 		self.variable=variable
 		self.field=field
 
-class pointee():
+class pointee():				#format of the pointee part in pointer=pointee statement
 	def __init__(self,variable):
 		self.variable=variable
 
 class MayPointsTo():
-	def computeKill(self,cfg,i):
+	def computeKill(self,cfg,i):		
 		present_flag=0
-		if(cfg[i].leftLevel==0):	
+		if(cfg[i].leftLevel==0):			#if LHS is not pointer variable 
 			for (p,v) in cfg[i].ain:
-				present_flag=0
+				present_flag=0				#present_flag set if the pair to be killed already exist in the kill array
 				if(p.variable==cfg[i].leftVar):
 					for j in (cfg[i].kill):
-						if(((cfg[i].leftVar) != j[0].variable) and (cfg[i].leftField != j[0].field) and (v != j[1])):
-							pass
+						if(((cfg[i].leftVar) != j[0].variable) and (cfg[i].leftField != j[0].field) and (v != j[1])):	#check if the pair exist in kill
+							pass					
 						else:
 							present_flag=1
 							break
-					if(present_flag!=1):
+					if(present_flag!=1):			#if the pair doesn't exist add the pair in kill array
 						pointerVar=pointer(cfg[i].leftVar,cfg[i].leftField)
 						pointeeVar=pointee(v.variable)
 						cfg[i].kill.append((pointerVar,pointeeVar))
 						present_flag=0
-		else:
+		else:				#if the LHS is a pointer variable
 			count=0
 			temp_pointee=cfg[i].leftVar
 			temp_field= cfg[i].leftField
 			temp=""
 			p1=pointer(None,None)
 			v1=pointee(None)
-			for j in range (0,cfg[i].leftLevel):
+			for j in range (0,cfg[i].leftLevel):	
 				count=0
 				for (p,v) in cfg[i].ain:
 					if(p.variable==temp_pointee):
@@ -150,7 +150,7 @@ class MayPointsTo():
 					print("Type mismatch error")
 		return 0
 
-	def FlowAnalysis(self,cfg):
+	def FlowAnalysis(self,cfg):			
 		change=True
 		statement_check=""
 		while(change):
@@ -224,23 +224,21 @@ class MayPointsTo():
 
 
 	def __init__(self,symbolTable,cfg,debugLevel):
-		self.debugLevel=debugLevel
-		self.Relation=[]
+		self.debugLevel=debugLevel						
 		self.pointer=""
 		self.pointee=""
 		self.symbolTable=symbolTable
 		for i in range(0,len(cfg)):			#initialize ain and aout
 			cfg[i].aout=None
 			cfg[i].aoutprev=None
-		for i in range (0,len(symbolTable)):	#initialize all pointer variables with ? and store in relation
+		for i in range (0,len(symbolTable)):	#initialize all pointer variables with ? and store in ain and aout of start block
 			if(symbolTable[i][1]>=1):			
 				self.pointer=pointer(symbolTable[i][0][0],symbolTable[i][0][1])
 				self.pointee=pointee('?')
-				self.Relation.append((self.pointer,self.pointee))
 				cfg[0].ain.append((self.pointer,self.pointee))
-		cfg[0].aout=self.Relation
+		cfg[0].aout=cfg[0].ain
 		print("\nStart Relation is : ")
-		for i in range (0,len(self.Relation)):
-			print("((",self.Relation[i][0].variable,",",self.Relation[i][0].field,"),",self.Relation[i][1].variable,")  ",end="")
+		for i in range (0,len(cfg[0].ain)):		#display the initial ain and aout 
+			print("((",cfg[0].ain[i][0].variable,",",cfg[0].ain[i][0].field,"),",cfg[0].ain[i][1].variable,")  ",end="")
 		
 		self.FlowAnalysis(cfg)

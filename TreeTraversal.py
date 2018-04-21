@@ -1,4 +1,4 @@
-from MayPointsTo import *
+import importlib
 
 class node:										#node for CFG
 	def __init__(self,label,data,pred,succ):
@@ -636,8 +636,9 @@ class tree_traversal():
 			except:
 				break
 
-	def __init__(self,tree,debugLevel):
+	def __init__(self,tree,debugLevel,pta):
 		global labels
+		module = __import__(pta)
 		self.symbolTable1=[]
 		self.struct_flag=0
 		self.fields=[]
@@ -693,4 +694,4 @@ class tree_traversal():
 				print ("-------------------")
 		self.o_flag=0
 		
-		MayPointsTo(self.symbolTable1,arr,debugLevel)
+		module.MayPointsTo(self.symbolTable1,arr,debugLevel)

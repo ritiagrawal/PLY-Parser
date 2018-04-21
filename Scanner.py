@@ -1,6 +1,6 @@
 import ply.lex as lex
 import sys
-arg1 = sys.argv[1]
+arg1 = sys.argv[2]
 
 reserved = {
     'var' : 'VAR',

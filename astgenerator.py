@@ -1,6 +1,6 @@
 import sys
 from abc import ABC
-arg1 = sys.argv[1]        						# For taking input from command line.
+arg1 = sys.argv[2]        						# For taking input from command line.
 with open(arg1, 'r') as myfile:
     data=myfile.read()
 
