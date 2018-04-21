@@ -44,10 +44,10 @@ class tree_traversal():
 				pointer_variable = ppointer_variable.pointer_variable_obj.variable_obj.name
 				if self.flag_p==0:									#if pointer variable appears in var declaration
 					self.variables = self.variables + '%s' %self.pointers + '%s' %pointer_variable 
-					if(self.struct_flag==0):
+					if(self.struct_flag==0):						#if var is not a structure var
 						self.symbolTable1.append(((pointer_variable,'*'),len(self.pointers),"var"))
-					else:
-						if(self.object_flag==0):
+					else:										#if struct var then add the var as obj or field of struct
+						if(self.object_flag==0):				
 							self.fields.append((pointer_variable,len(self.pointers)))
 						else:
 							self.objects.append((pointer_variable,len(self.pointers)))
@@ -96,7 +96,7 @@ class tree_traversal():
 
 			except:
 				pass
-			try:
+			try:				#for multiple pointer variables
 				ppointer_variable = ppointer_variable.ppointer_variable_obj
 				self.pointers ='*%s' %self.pointers
 				
@@ -109,19 +109,19 @@ class tree_traversal():
 				self.ppointer_var_traversal(def_parameters.ppointer_variable_obj)
 			except:
 				pass
-			try:
+			try:													#for multiple parameters
 				def_parameters=def_parameters.def_parameter_list_obj.def_parameters_obj	
 			except:
 				break
 	
 
-	def expression_term_traversal(self, expression_term):		#to traverse expression terms in the 
+	def expression_term_traversal(self, expression_term):		#to traverse expression terms in the statements 
 		global labels
-		try:
+		try:													#for struct variable as expression term
 			variable_pointer = expression_term.variable_pointer_obj.name
 			variable_field = expression_term.variable_field_obj.name
 			self.statement = self.statement + variable_pointer + '-' + '>'+variable_field
-			if(self.onestmt == ""):
+			if(self.onestmt == ""):							#if struct var is on LHS
 				self.onestmt = self.onestmt + variable_pointer
 				self.leftVar=self.onestmt
 				self.onestmt = self.onestmt + '-' + '>'
@@ -129,7 +129,7 @@ class tree_traversal():
 				self.o_flag=1
 				self.leftField=variable_field
 				self.onestmt = self.onestmt + self.leftField
-			elif(self.onestmt != "" and self.o_flag==1):
+			elif(self.onestmt != "" and self.o_flag==1):	#else if struct var is on RHS
 				self.onestmt = self.onestmt + variable_pointer
 				self.rightVar=variable_pointer
 				self.onestmt = self.onestmt + '-' + '>'
@@ -138,7 +138,7 @@ class tree_traversal():
 				self.onestmt = self.onestmt + self.rightField				
 				global labels
 				labels=labels+1
-				if(self.TreePass==1):
+				if(self.TreePass==1):				#if first tree traversal pass then create and store the cfg node	
 					node1=node(labels,self.onestmt,(),())
 					node1.leftVar=self.leftVar
 					node1.rightVar=self.rightVar
@@ -170,7 +170,7 @@ class tree_traversal():
 		try:													#variable as expression term
 			variable = expression_term.variable_obj.name 
 			self.statement = self.statement + variable
-			if(self.onestmt == ""):
+			if(self.onestmt == ""):								#on LHS of statement
 				self.onestmt = self.onestmt + variable
 				self.leftVar=self.onestmt
 				self.leftLevel=0
@@ -178,12 +178,12 @@ class tree_traversal():
 				self.rightField='*'
 				self.leftField='*'
 
-			elif(self.onestmt != "" and self.o_flag==1):
+			elif(self.onestmt != "" and self.o_flag==1):		#on RHS of the statement
 				self.onestmt = self.onestmt + variable
 				self.rightVar=variable
 				self.rightLevel=0
 				labels=labels+1
-				if(self.TreePass==1):
+				if(self.TreePass==1):			#if first tree traversal pass then create and store the cfg node	
 					node1=node(labels,self.onestmt,(),())
 					node1.leftVar=self.leftVar
 					node1.rightVar=self.rightVar
@@ -257,10 +257,10 @@ class tree_traversal():
 			pass
 		
 		
-	def label_traversal(self,label_obj):		#to traverse blocks 
+	def label_traversal(self,label_obj):						#to traverse blocks 
 		label = "<bb "+ str(label_obj.num)+">:"
 		self.statement = self.statement + " %s" %label
-		if(self.TreePass!=1 and self.bb_skip!=1):			
+		if(self.TreePass!=1 and self.bb_skip!=1):				#in 2nd tree traversal assign the predecessor and successor
 			if(arr[bbArray[label_obj.num-1].start].label not in arr[self.current].succ):
 				arr[self.current].succ.append(arr[bbArray[label_obj.num-1].start].label)
 				arr[self.current].successor.append(arr[bbArray[label_obj.num-1].start])
@@ -278,33 +278,31 @@ class tree_traversal():
 			global labels
 			self.statement=self.statement + "\n"
 			assignment_statement= statement.assignment_statement_obj
-			try:
+			try:						#expression term in the statement
 				expression_term=assignment_statement.expression_term_obj
-				self.lhsflag=1
 				self.expression_term_traversal(expression_term)
 				self.statement = "%s = " %self.statement
 				self.onestmt= "%s = " %self.onestmt
-				self.lhsflag=0
 			except:
 				pass
-			try:
+			try:						#arithmetic statement
 				arithmetic_term=assignment_statement.arithmetic_term_obj
 				while(arithmetic_term):
-					try:
+					try:				#expression term in the arithmetic statement
 						expression_term_obj = arithmetic_term.expression_term_obj
 						self.expression_term_traversal(expression_term_obj)
 					except:
 						pass
 			
-					try:
+					try:				#2nd expression term in the binary operation of arithmetic statement
 						arithmetic_term = arithmetic_term.arithmetic_term_obj1 
-						flag=1	
+						binary_flag=1		#to represent binary arithmetic statement	
 					except:
 						break
 
 				arithmetic_term=assignment_statement.arithmetic_term_obj
 
-				while(arithmetic_term and flag):
+				while(arithmetic_term and binary_flag):
 					try:
 						expression_term = arithmetic_term.expression_term_obj
 						self.expression_term_traversal(expression_term)		
@@ -315,7 +313,7 @@ class tree_traversal():
 						self.statement = self.statement + " %s" %arithmetic_term.bin_op
 						arithmetic_term = arithmetic_term.arithmetic_term_obj2
 					except:
-						flag=0
+						binary_flag=0
 						break
 			except:
 				pass
@@ -406,7 +404,7 @@ class tree_traversal():
 				self.statement_traversal(statement)
 			except:
 				pass
-			try:
+			try:							#for multiple statements
 				ex_statement_list = ex_statement_list.ex_statement_list_obj
 			except:
 				pass
@@ -415,37 +413,37 @@ class tree_traversal():
 		variable_declarations=tree.variable_declarations_obj	
 		variable_declaration_list=variable_declarations.variable_declaration_list_obj
 		while(variable_declaration_list):
-			try:
+			try:									#var variable declaration
 				var_list=variable_declaration_list.variable_declaration_obj.var_list_obj
 				self.variables=self.variables +'\nvar '
-				while(var_list):
+				while(var_list):					
 					self.pointers='*'
-					try:
+					try:							#pointer variables
 						ppointer_variable = var_list.ppointer_variable_obj
 						self.ppointer_var_traversal(ppointer_variable)
 					except:
 						pass
 					
-					try:
+					try:													
 						self.variables = self.variables + var_list.variable_obj.name	
 						self.symbolTable1.append(((var_list.variable_obj.name,'*'),0,"var"))					
 					except:
 						pass
 
-					try:	
+					try:							#for multiple vars in single var declaration statement 
 						var_list=var_list.var_list_obj
 						self.variables=self.variables + ' '
 					except:
 						break					
 			except:
 				pass
-			try:
+			try:						#structure variable declaration
 				structure_declaration=variable_declaration_list.variable_declaration_obj.structure_declaration_obj
 				self.variables= self.variables +'\nstruct '
 				self.struct_flag=1
 				self.variables = self.variables + structure_declaration.variable_obj.name
 				self.variables = self.variables + '{\n' 
-				variable_declaration_list_structure=structure_declaration.variable_declaration_list_obj
+				variable_declaration_list_structure=structure_declaration.variable_declaration_list_obj		#variable as fields
 				while(variable_declaration_list_structure):
 					try:
 						self.variables = self.variables + '\nvar '
@@ -473,12 +471,12 @@ class tree_traversal():
 						pass
 							
 					
-					try:
+					try:				#for multiple variable declaration statements as fields on structure
 						variable_declaration_list_structure=variable_declaration_list_structure.variable_declaration_list_obj	
 					except:
 						break
 				self.variables = self.variables + '\n}' 
-				var_list=structure_declaration.struct_obj
+				var_list=structure_declaration.struct_obj	#structure objects
 				self.object_flag=1
 				while(var_list):
 					self.pointers='*'
@@ -488,9 +486,9 @@ class tree_traversal():
 					except:
 						pass
 		
-					try:
+					try:	
 						self.variables = self.variables + var_list.variable_obj.name			
-						self.objects.append((var_list.variable_obj.name,0))		
+						self.objects.append((var_list.variable_obj.name,0))		#store the objs of structure in objects
 					
 					except:
 						pass
@@ -504,20 +502,12 @@ class tree_traversal():
 				self.object_flag=0
 				self.struct_flag=0 
 				
-				#reason of errror
-				for o in self.objects:
+				for o in self.objects:			#make an entry on symbol table with all objs and fields
 					for f in self.fields:
 						if(o[1]==0	):
 							self.symbolTable1.append(((o[0],f[0]),o[1]+f[1],"var"))
 					self.symbolTable1.append(((o[0],'*'),o[1],structure_declaration.variable_obj.name))
 	
-				'''for o in self.objects:
-					for f in self.fields:
-						if(o[1]>=1):
-							self.symbolTable1.append(((o[0],'*'),o[1],structure_declaration.variable_obj.name))
-						else:
-							self.symbolTable1.append(((o[0],'*'),o[1],structure_declaration.variable_obj.name))
-							self.symbolTable1.append(((o[0],f[0]),o[1]+f[1],"var"))'''
 				self.fields=[]
 				self.objects=[]
 			except:
@@ -654,7 +644,6 @@ class tree_traversal():
 		self.object_flag=0
 		self.objects=[]
 		self.lhs=0
-		self.lhsflag=0
 		self.rhs=0
 		self.skip=0						#to skip the statement after unconditional goto
 		self.bb_skip=0					#to represent block

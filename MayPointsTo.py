@@ -12,7 +12,7 @@ class pointee():
 class MayPointsTo():
 	def computeKill(self,cfg,i):
 		present_flag=0
-		if(cfg[i].leftLevel==0):
+		if(cfg[i].leftLevel==0):	
 			for (p,v) in cfg[i].ain:
 				present_flag=0
 				if(p.variable==cfg[i].leftVar):
@@ -152,27 +152,27 @@ class MayPointsTo():
 
 	def FlowAnalysis(self,cfg):
 		change=True
-		check=""
+		statement_check=""
 		while(change):
 			change=False
 			for i in range(0,len(cfg)):
 				self.computeAin(cfg,i)
 				if(i!=0 and i!= len(cfg)-1):
-					check=cfg[i].data
-					if((re.search('^use',check) or re.search('^return',check))):
+					statement_check=cfg[i].data    #check if the statement is use or return 
+					if((re.search('^use',statement_check) or re.search('^return',statement_check))):
 						cfg[i].definition=[]
 						cfg[i].kill=[]
 						cfg[i].pointee=[]
-					else:
+					else:				#if statement is neither use nor return compute def,kill and pointee
 						self.computeDef(cfg,i)
 						self.computeKill(cfg,i)
 						self.computePointee(cfg,i)
 							
 				cfg[i].aoutprev=cfg[i].aout
 				self.computeAout(cfg,i)
-				if(cfg[i].aout!= cfg[i].aoutprev):
+				if(cfg[i].aout!= cfg[i].aoutprev):		#check if aout has changed
 					change=True
-		if(self.debugLevel=='1'):
+		if(self.debugLevel=='1'):					#aout of the final block
 			print("\n\nMay point-to analysis")
 			print("Aout:",end=" ")
 			i=cfg[len(cfg)-1]
@@ -180,7 +180,7 @@ class MayPointsTo():
 				print("((",i.aout[j][0].variable,",",i.aout[j][0].field,"),",i.aout[j][1].variable,")  ",end="")
 			print("\n\n")
 			
-		elif(self.debugLevel=='2'):
+		elif(self.debugLevel=='2'):				#cfg and ain and aout of every block
 			print("\n\nMay point-to analysis")
 			for i in cfg:
 				print("******  At block no. ",i.label,"*********")
@@ -195,7 +195,7 @@ class MayPointsTo():
 				print("\n\n")
 			
 
-		elif(self.debugLevel=='3'):
+		elif(self.debugLevel=='3'): 		#cfg and ain,kill,def,pointee,cout of every block
 			print("\n\nMay point-to analysis")
 			for i in cfg:
 				print("******  At block no. ",i.label,"*********")
@@ -229,11 +229,11 @@ class MayPointsTo():
 		self.pointer=""
 		self.pointee=""
 		self.symbolTable=symbolTable
-		for i in range(0,len(cfg)):
+		for i in range(0,len(cfg)):			#initialize ain and aout
 			cfg[i].aout=None
 			cfg[i].aoutprev=None
-		for i in range (0,len(symbolTable)):
-			if(symbolTable[i][1]>=1):
+		for i in range (0,len(symbolTable)):	#initialize all pointer variables with ? and store in relation
+			if(symbolTable[i][1]>=1):			
 				self.pointer=pointer(symbolTable[i][0][0],symbolTable[i][0][1])
 				self.pointee=pointee('?')
 				self.Relation.append((self.pointer,self.pointee))
@@ -244,4 +244,3 @@ class MayPointsTo():
 			print("((",self.Relation[i][0].variable,",",self.Relation[i][0].field,"),",self.Relation[i][1].variable,")  ",end="")
 		
 		self.FlowAnalysis(cfg)
-

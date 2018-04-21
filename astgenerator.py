@@ -30,6 +30,7 @@ varStr = "var"
 label1 = 0
 label2 = 0
 
+#abstract classes representing the left side of the grammer rule
 class program(ABC):
 	pass
 
@@ -130,7 +131,7 @@ class program_grammar(program):					#program : variable_declarations procedure_d
 		self.variable_declarations_obj=variable_declarations_obj
 		self.procedure_defination_list_obj=procedure_defination_list_obj
 
-class procedure_defination_list_grammar(procedure_defination_list):
+class procedure_defination_list_grammar(procedure_defination_list):  #procedure_definition_list : procedure_definition  procedure_definition_list
 	procedure_defination_list_obj=procedure_defination_list()
 	procedure_defination_obj = procedure_defination()
 	def __init__(self,procedure_defination_list_obj, procedure_defination_obj):
@@ -388,21 +389,21 @@ class use_pointer(use):									#use_stat : USE '(' ppointer_var ')' ';'
 	def __init__(self,ppointer_var_obj):
 		self.ppointer_var_obj=ppointer_var_obj
 		
-class label_num(label):							# label : '<' BB NUM '>' ':' 
+class label_num(label):									# label : '<' BB NUM '>' ':' 
 	def __init__(self,num):
 		self.num=num
 		
-class return_ppointer_var(return_stat):						 #return_stat : RETURN ppointer_var ';' 
+class return_ppointer_var(return_stat):				 	#return_stat : RETURN ppointer_var ';' 
 	ppointer_var_obj=ppointer_variable()
 	def __init__(self, ppointer_var_obj):
 		self.ppointer_var_obj=ppointer_var_obj
 		
-class return_addr_var(return_stat):							# return_stat : RETURN addr_var ';' 
+class return_addr_var(return_stat):						# return_stat : RETURN addr_var ';' 
 	addr_variable_obj=addr_variable()
 	def __init__(self, addr_variable_obj):
 		self.addr_variable_obj=addr_variable_obj
 
-class return_variable(return_stat):							# return_stat : RETURN variable ';' 
+class return_variable(return_stat):						# return_stat : RETURN variable ';' 
 	variable_obj=variable()
 	def __init__(self, variable_obj):
 		self.variable_obj=variable_obj

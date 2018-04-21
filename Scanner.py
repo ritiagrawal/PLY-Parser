@@ -23,7 +23,6 @@ tokens = [
 
 def t_COMMENT(t):
     r'//.*'
-    #print("Line: %d \t Ignored lexeme" % t.lineno)
     pass
 
 def t_NAME(t):
@@ -52,7 +51,7 @@ def myprint(t):
 def t_newline(t):
     r'\n'
     t.lexer.lineno += len(t.value)
-    print("Line: %d \t Ignored NEWLINE character" % t.lineno)
+    #print("Line: %d \t Ignored NEWLINE character" % t.lineno)
     
 # A string containing ignored characters (spaces and tabs)
 t_ignore  = ' \t'
@@ -68,9 +67,3 @@ with open(arg1, 'r') as myfile:
     data=myfile.read()
 	
 lexer.input(data)
-
-'''while True:
-    tok = lexer.token()
-    if not tok:break
-    myprint(tok)
-'''
