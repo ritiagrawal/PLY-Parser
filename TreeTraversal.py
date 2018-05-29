@@ -516,7 +516,7 @@ class tree_traversal():
 
 			try:
 				variable_declaration_list=variable_declaration_list.variable_declaration_list_obj	
-				
+			 	
 			except:
 				break
 		print(self.variables)
@@ -638,13 +638,14 @@ class tree_traversal():
 
 	def __init__(self,tree,debugLevel,pta):
 		global labels
-		module = __import__(pta)
+		print(pta)
+		module = __import__(pta)		#to load the pta class
 		self.symbolTable1=[]
 		self.struct_flag=0
 		self.fields=[]
 		self.object_flag=0
 		self.objects=[]
-		self.lhs=0
+		self.lhs=0	
 		self.rhs=0
 		self.skip=0						#to skip the statement after unconditional goto
 		self.bb_skip=0					#to represent block
@@ -693,5 +694,5 @@ class tree_traversal():
 				print ("Right level", arr[label].rightLevel)
 				print ("-------------------")
 		self.o_flag=0
-		
-		module.MayPointsTo(self.symbolTable1,arr,debugLevel)
+		ptaClass = getattr(module, pta)				#get instance of the class with whatever attributes the constructor needs
+		ptaClass(self.symbolTable1,arr,debugLevel)	#call pta algorithm constructor
