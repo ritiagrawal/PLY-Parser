@@ -638,7 +638,6 @@ class tree_traversal():
 
 	def __init__(self,tree,debugLevel,pta):
 		global labels
-		print(pta)
 		module = __import__(pta)		#to load the pta class
 		self.symbolTable1=[]
 		self.struct_flag=0
@@ -688,10 +687,6 @@ class tree_traversal():
 				print ("DATA : ",arr[label].data)
 				print ("Predeccesor Label",arr[label].pred)
 				print ("Successor Label",arr[label].succ)
-				print ("Left field: ", arr[label].leftField)
-				print ("Right field",arr[label].rightField)
-				print ("Left level: ",arr[label].leftLevel)
-				print ("Right level", arr[label].rightLevel)
 				print ("-------------------")
 		self.o_flag=0
 		ptaClass = getattr(module, pta)				#get instance of the class with whatever attributes the constructor needs

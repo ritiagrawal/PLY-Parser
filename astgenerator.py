@@ -327,11 +327,6 @@ class var_name(variable):								#variable : NAME
 	def __init__(self, name):
 		self.name=name;
 		
-#class var_array(variable):
-#	arr_var_obj = arr_var()						#arr_var() to be done
-#	def __init__(self, arr_var_obj):
-#		self.arr_var_obj=arr_var_obj
-		
 class constant_num(constant):							#constant : NUM 
 	def __init__(self, num):
 		self.num=num

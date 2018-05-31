@@ -1,4 +1,4 @@
-var *b,*a;
+var *b,a;
 var c;
 
 main()
@@ -15,5 +15,5 @@ goto <bb 3>:
 <bb 3>:
 	b=&a;
 <bb 4>:
-	return *a;
+	return *b;
 }
